@@ -29,26 +29,9 @@
             transition: background 0.3s; 
         }
         
-        .nav-item { 
-            padding: 12px 14px; 
-            border-radius: 8px; 
-            font-weight: 700; 
-            color: #94a3b8; 
-            font-size: 11px; 
-            text-transform: uppercase; 
-            cursor: pointer; 
-            white-space: nowrap; 
-            transition: 0.2s; 
-        }
-        .nav-item.active { 
-            background: var(--secondary) !important; 
-            color: white !important; 
-            box-shadow: 0 4px 12px rgba(24, 154, 211, 0.4); 
-        }
-        .nav-item:hover { 
-            background: rgba(255,255,255,0.05); 
-            color: white; 
-        }
+        .nav-item { padding: 12px 14px; border-radius: 8px; font-weight: 700; color: #94a3b8; font-size: 11px; text-transform: uppercase; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .nav-item.active { background: var(--secondary) !important; color: white !important; box-shadow: 0 4px 12px rgba(24, 154, 211, 0.4); }
+        .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
         
         .page { display: none; width: 100%; }
         .page.active { display: block; animation: fadeIn 0.3s ease; }
@@ -118,7 +101,6 @@
         #maint-overlay { position: fixed; inset: 0; background: rgba(0,31,61,0.95); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 20px; text-align: center; backdrop-filter: blur(4px); }
         #maint-overlay.active { display: flex; }
 
-        /* Custom Styles for Highlighted Rows */
         .pay-row-active { background-color: #eff6ff !important; border-left: 4px solid #3b82f6; }
     </style>
 </head>
@@ -184,9 +166,7 @@
                 
                 <section id="p-architect" class="page">
                     <h1 class="text-3xl font-black italic text-[#a855f7] mb-6 uppercase">Architect Console</h1>
-                    
                     <button onclick="softRefresh()" class="btn btn-blue w-full py-4 mb-6 shadow-xl text-sm tracking-widest">🔄 REFRESH SYSTEM</button>
-
                     <div class="card border-t-4 border-yellow-500 mb-6 bg-yellow-50">
                         <h3 class="font-black mb-4 text-yellow-700 uppercase">System Maintenance Control</h3>
                         <p class="text-xs font-bold text-gray-600 mb-4">Activating maintenance mode will lock out ALL users except the System Architect.</p>
@@ -201,7 +181,6 @@
                             <button onclick="setMaintenance(false)" class="btn btn-green flex-1 py-3">RESTORE NORMAL OPS</button>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                         <div class="card border-t-4 border-purple-500">
                             <h3 class="font-black mb-4 uppercase text-purple-700">System Deployment (Add Users)</h3>
@@ -219,15 +198,13 @@
                             <input id="sa-u-pass" type="password" class="inp mb-4 text-center" placeholder="PASSWORD">
                             <button onclick="saAddUser()" class="btn btn-purple w-full py-3">DEPLOY NEW USER</button>
                         </div>
-
                         <div class="card border-t-4 border-green-500 flex flex-col">
                             <h3 class="font-black mb-4 uppercase text-green-700">Dynamic Module Creator</h3>
-                            <p class="text-xs text-gray-500 mb-4 font-bold flex-1">Instantly provision new blank modules into the ecosystem. Use AI to build logic inside these pages later.</p>
+                            <p class="text-xs text-gray-500 mb-4 font-bold flex-1">Instantly provision new blank modules into the ecosystem.</p>
                             <input id="sa-m-name" class="inp mb-4 uppercase text-center" placeholder="NEW MODULE NAME (E.G. INVENTORY)">
                             <button onclick="saAddModule()" class="btn btn-green w-full py-3">INITIALIZE MODULE</button>
                         </div>
                     </div>
-
                     <div class="card border-t-4 border-blue-500 mb-6">
                         <h3 class="font-black mb-4 text-blue-700 uppercase">Module Sandbox (Live Editor)</h3>
                         <p class="text-xs text-gray-500 mb-4 font-bold">Select ANY module (Base or Dynamic) and paste HTML/JS logic into it. You can also delete custom dynamic modules.</p>
@@ -238,7 +215,6 @@
                             <button onclick="deleteSelectedModule()" class="btn btn-red py-3 px-6">DELETE MODULE</button>
                         </div>
                     </div>
-
                     <div class="card border-t-4 border-red-500">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="font-black text-red-600 uppercase">Recycle Bin (Recovery)</h3>
@@ -251,9 +227,21 @@
 
                 <section id="p-dashboard" class="page">
                     <h1 class="text-3xl font-black uppercase mb-6 text-gray-800">Analytics Dashboard</h1>
-                    
                     <div id="stats-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
                     
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <div class="card border-t-4 border-red-500 !mb-0 shadow-sm">
+                            <h3 class="font-black text-red-600 mb-1 uppercase text-[11px] tracking-widest">Inactive Doctors (> 2 Months)</h3>
+                            <p class="text-[9px] text-gray-400 font-bold mb-3">Doctors who haven't submitted a case in 60+ days.</p>
+                            <div id="alert-inactive-docs" class="max-h-40 overflow-y-auto custom-scroll space-y-2"></div>
+                        </div>
+                        <div class="card border-t-4 border-orange-500 !mb-0 shadow-sm">
+                            <h3 class="font-black text-orange-600 mb-1 uppercase text-[11px] tracking-widest">Unpaid Ongoing/Pending Cases</h3>
+                            <p class="text-[9px] text-gray-400 font-bold mb-3">Cases still in production but have an outstanding balance.</p>
+                            <div id="alert-unpaid-ongoing" class="max-h-40 overflow-y-auto custom-scroll space-y-2"></div>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                         <div class="lg:col-span-2 space-y-4">
                             <div class="card p-0 overflow-hidden relative h-[350px] lg:h-[450px]">
@@ -283,13 +271,15 @@
                         <h1 class="text-2xl font-black uppercase text-[#189ad3]">Accounting & Analysis</h1>
                         <button onclick="document.getElementById('p-catalog').classList.toggle('hidden'); renderCatalog();" class="btn btn-blue shadow-sm">⚙️ PRICING CATALOG</button>
                     </div>
+
+                    <div id="acc-stats-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
                     
                     <div class="grid grid-cols-1 xl:grid-cols-5 gap-6 mb-6">
                         
                         <div class="card p-0 col-span-1 xl:col-span-3 flex flex-col h-[600px] border-t-4 border-[#189ad3]">
                             <div class="p-4 bg-gray-50 border-b flex justify-between items-center shrink-0">
                                 <h3 class="font-black uppercase text-gray-700">Accounts Receivables</h3>
-                                <select id="acc-filter" class="inp !mb-0 !py-1 !w-auto text-[10px] font-bold" onchange="if(typeof rAcc === 'function') rAcc()">
+                                <select id="acc-filter" class="inp !mb-0 !py-1 !w-auto text-[10px] font-bold" onchange="rAcc()">
                                     <option value="ALL">ALL RECORDS</option>
                                     <option value="UNPAID">UNPAID / PARTIAL</option>
                                 </select>
@@ -326,7 +316,9 @@
                                             <th class="!bg-gray-800">NOTES</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="b-payments"></tbody>
+                                    <tbody id="b-payments">
+                                        <tr><td colspan="4" class="text-center p-4">Click an Account Receivable to view payments.</td></tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -384,13 +376,8 @@
                     <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
                         <div class="card p-0 col-span-1 xl:col-span-2 flex flex-col h-[700px] border-t-4 border-[#d97706]">
                             <div class="p-4 bg-gray-50 border-b flex justify-between items-center shrink-0">
-                                <h3 class="font-black uppercase text-gray-700">Completed Job Orders</h3>
-                                <select id="prod-filter" class="inp !mb-0 !py-1 !w-auto text-[10px] font-bold" onchange="rProd()">
-                                    <option value="ALL">ALL STATUS</option>
-                                    <option value="NEW">NEW</option>
-                                    <option value="IN PRODUCTION">IN PRODUCTION</option>
-                                    <option value="COMPLETE">COMPLETE / DONE</option>
-                                </select>
+                                <h3 class="font-black uppercase text-gray-700">Job Orders</h3>
+                                <select id="prod-filter" class="inp !mb-0 !py-1 !w-auto text-[10px] font-bold" onchange="rProd()"></select>
                             </div>
                             <div class="table-wrap flex-1 overflow-y-auto rounded-none border-x-0 border-b-0">
                                 <table class="w-full !min-w-[700px]">
@@ -559,7 +546,7 @@
                 
                 <div class="sm:col-span-2 border-t pt-4 mt-2"></div>
 
-                <div><label class="text-[10px] font-black text-gray-500 tracking-widest">AMOUNT PAID</label><input id="pay-amt" type="number" class="inp border-2 border-green-400 font-black text-xl text-green-700 py-3" placeholder="₱0.00" onkeyup="if(typeof calcPayBal === 'function') calcPayBal()" onchange="if(typeof calcPayBal === 'function') calcPayBal()"></div>
+                <div><label class="text-[10px] font-black text-gray-500 tracking-widest">AMOUNT PAID</label><input id="pay-amt" type="number" class="inp border-2 border-green-400 font-black text-xl text-green-700 py-3" placeholder="₱0.00" onkeyup="calcPayBal()" onchange="calcPayBal()"></div>
                 <div><label class="text-[10px] font-black text-gray-500 tracking-widest">PAYMENT METHOD</label>
                     <select id="pay-method" class="inp py-3">
                         <option value="CASH">Cash Payment</option>
@@ -578,7 +565,7 @@
             </div>
             <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6">
                 <button onclick="closeModals()" class="btn btn-red py-4 flex-1">CANCEL</button>
-                <button onclick="if(typeof savePayment === 'function') savePayment()" class="btn btn-green py-4 flex-1 shadow-xl text-sm">ACCEPT PAYMENT</button>
+                <button onclick="savePayment()" class="btn btn-green py-4 flex-1 shadow-xl text-sm">ACCEPT PAYMENT</button>
             </div>
         </div>
     </div>
@@ -647,12 +634,25 @@
                     <label>UNITS (QTY)</label><input id="o-qty" type="number" value="1" min="1" class="inp" oninput="calcPrice()">
                     <label>TEETH (CLICK TO SELECT)</label><div id="o-teeth" class="tooth-grid mb-4"></div>
                     <label class="text-green-700 font-bold">DISCOUNT (GENERATED)</label><select id="o-v" class="inp font-bold bg-green-50" onchange="calcPrice()"></select>
-                    <label>PAYMENT</label><select id="o-pay" class="inp" onchange="toggleQR()"><option value="CASH">CASH</option><option value="GCASH">GCASH</option><option value="BANK">BANK</option></select>
+                    <label>PAYMENT METHOD</label><select id="o-pay" class="inp" onchange="toggleQR()"><option value="CASH">CASH</option><option value="GCASH">GCASH</option><option value="BANK">BANK</option></select>
                     <div id="qr-box" class="hidden text-center mt-2">
                         <img id="qr-img" src="" class="w-32 h-32 mx-auto border object-contain bg-white">
                         <input type="file" id="qr-up" accept="image/*" class="hidden" onchange="upQR(this)">
                         <button type="button" onclick="document.getElementById('qr-up').click()" class="text-[9px] text-blue-500 uppercase mt-1 font-bold">UPDATE QR IMAGE</button>
                     </div>
+
+                    <label class="mt-2 block border-t pt-2">STAFF HANDLER</label>
+                    <input id="o-staff" class="inp font-bold uppercase" placeholder="Enter Staff Name">
+                    
+                    <label>OR NUMBER</label>
+                    <input id="o-or" class="inp font-bold uppercase" placeholder="OR12345">
+                    
+                    <label class="text-blue-600 font-bold mt-2 block">PROOF OF PAYMENT UPLOAD</label>
+                    <div class="flex items-center gap-2 mb-2">
+                        <input type="file" id="o-pay-proof" accept="image/*" class="inp flex-1 text-[10px]" onchange="previewImg(this, 'o-pay-proof-img')">
+                        <img id="o-pay-proof-img" class="w-10 h-10 object-cover border bg-gray-100 hidden">
+                    </div>
+                    
                     <div class="bg-slate-900 text-white p-6 rounded-xl text-center mt-4">
                         <div id="calc-breakdown" class="text-[10px] text-blue-300 font-bold tracking-widest uppercase mb-1"></div>
                         <small class="text-[10px] tracking-widest text-gray-400">TOTAL AMOUNT</small>
@@ -678,7 +678,6 @@
 
   <script>
     // CONFIG & STATE
-    // ACCT merged into Accounting, Voucher renamed to Discount
     const BASE_MODS = ['dashboard','accounting','discount','doctor','clinic_support','production','calendar','excel','users','settings'];
     const PRODS = ["PFM","MARYLAND WING","W/ PORCELAIN GUMS","EMAX","ONLAY","INLAY","TOOTH COLOR","INDIVIDUAL CROWN","ZIRCONIA","PFZ (PORCELAIN FUSED)","METAL TRIAL","TRIAL UNGLAZE","NON-PRECIOUS METAL","TILITE (US)","COLLAR","VENEERS","GLASS CERAMIC","LAYERING","TEMPORARY CROWN","BRIDGE CROWN","FCZ (FULL CONTOUR)","PREMIUM ZIRCONIA","TRIAL GLAZE"];
     const PCOLORS = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#6366f1", "#d946ef", "#84cc16", "#f43f5e", "#0ea5e9", "#7c3aed"];
@@ -712,6 +711,7 @@
 
     let selectedAccIdx = -1;
     let selectedProdIdx = -1;
+    let currentPayCaseIdx = -1; 
 
     let seenU = new Set();
     let ogLen = S.u.length;
@@ -753,17 +753,14 @@
 
     S.u.forEach(user => {
         if (user.m) {
-            // Strip 'voucher' completely from all users
             if (user.m.includes('voucher')) {
                 user.m = user.m.filter(mod => mod !== 'voucher');
                 usersModified = true;
             }
-            // Strip 'discount' from basic ADMIN role
             if (user.d === 'ADMIN' && user.m.includes('discount')) {
                 user.m = user.m.filter(mod => mod !== 'discount');
                 usersModified = true;
             }
-            // Ensure SUPER ADMIN and ARCHITECT have 'discount'
             if ((user.d === 'SUPER ADMIN' || user.d === 'SYSTEM ARCHITECT') && !user.m.includes('discount')) {
                 user.m.push('discount');
                 usersModified = true;
@@ -862,6 +859,10 @@
                 <span class="w-2 h-2 rounded-full bg-blue-500 opacity-50"></span>${m.replace('_', ' ')}
             </div>
         `).join('');
+        
+        // Setup initial dynamic dropdowns
+        updateProdFilterDropdown();
+        
         go(mods[0] || 'dashboard');
     }
 
@@ -892,7 +893,7 @@
         if(id==='doctor') rDocs(); 
         if(id==='clinic_support') rOrd(); 
         if(id==='production') { selectedProdIdx = -1; rProd(); } 
-        if(id==='accounting') { if(typeof rAcc === 'function') rAcc(); renderCatalog(); } 
+        if(id==='accounting') { rAcc(); renderCatalog(); } 
         if(id==='discount') rDisc(); 
         if(id==='excel') rFol(); 
         if(id==='users') rUsers(); 
@@ -916,7 +917,8 @@
     }
 
     function softRefresh() {
-        rDocs(); rOrd(); rProd(); dash(); if(typeof rAcc === 'function') rAcc(); rDisc(); rFol(); rUsers(); rTrash(); renderCatalog();
+        updateProdFilterDropdown();
+        rDocs(); rOrd(); rProd(); dash(); rAcc(); rDisc(); rFol(); rUsers(); rTrash(); renderCatalog();
         alert('Data Refreshed Successfully!');
     }
 
@@ -1121,14 +1123,62 @@
     // DASHBOARD & ANALYTICS
     function dash(){
         let totalRevenue = S.o.reduce((a,b)=>a+parseInt(String(b.tot).replace(/,/g,'')||0),0);
-        let totalCollected = S.o.reduce((a,b)=>a+(b.amtPaid || 0), 0);
         
         document.getElementById('stats-grid').innerHTML = `
-            <div class="card border-l-4 border-blue-500"><b>TOTAL CASES</b><h2 class="text-2xl lg:text-3xl font-black">${S.o.length}</h2></div>
-            <div class="card border-l-4 border-orange-500"><b>IN PRODUCTION</b><h2 class="text-2xl lg:text-3xl font-black">${S.o.filter(x=>x.st==='IN PRODUCTION').length}</h2></div>
-            <div class="card border-l-4 border-purple-500"><b>TOTAL REVENUE</b><h2 class="text-2xl lg:text-3xl font-black">₱${totalRevenue.toLocaleString()}</h2></div>
-            <div class="card border-l-4 border-green-500"><b>COLLECTED (CASH)</b><h2 class="text-2xl lg:text-3xl font-black text-green-600">₱${totalCollected.toLocaleString()}</h2></div>
+            <div class="card border-l-4 border-blue-500"><b>CASES</b><h2 class="text-2xl lg:text-3xl font-black">${S.o.length}</h2></div>
+            <div class="card border-l-4 border-orange-500"><b>DOCTORS</b><h2 class="text-2xl lg:text-3xl font-black">${S.d.length}</h2></div>
+            <div class="card border-l-4 border-purple-500"><b>ONGOING</b><h2 class="text-2xl lg:text-3xl font-black">${S.o.filter(x=>x.st==='IN PRODUCTION' || x.st==='ONGOING').length}</h2></div>
+            <div class="card border-l-4 border-green-500"><b>REVENUE</b><h2 class="text-2xl lg:text-3xl font-black text-green-600">₱${totalRevenue.toLocaleString()}</h2></div>
         `;
+
+        // NEW: Actionable Alerts Calculation
+        
+        // 1. Inactive Doctors (> 60 Days)
+        let twoMonthsAgo = new Date();
+        twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+        
+        let inactiveHtml = '';
+        S.d.forEach((doc, i) => {
+            let docCases = S.o.filter(o => o.doc === doc.n);
+            let latestDate = new Date(0); // Very old date by default
+            if(docCases.length > 0) {
+                let dates = docCases.map(c => new Date(c.date || 0));
+                latestDate = new Date(Math.max.apply(null, dates));
+            }
+            
+            if(latestDate < twoMonthsAgo) {
+                let lastActive = docCases.length ? latestDate.toISOString().split('T')[0] : 'NEVER SUBMITTED';
+                inactiveHtml += `
+                    <div class="p-2 bg-red-50 border border-red-100 rounded flex justify-between items-center cursor-pointer hover:bg-red-100 transition-colors" onclick="vDoc(${i})">
+                        <span class="font-bold text-xs text-red-900">${doc.n}</span>
+                        <span class="text-[9px] text-red-600 font-black">LAST ACTIVE: ${lastActive}</span>
+                    </div>
+                `;
+            }
+        });
+        document.getElementById('alert-inactive-docs').innerHTML = inactiveHtml || '<p class="text-xs text-gray-500 font-bold p-2 text-center border-2 border-dashed border-gray-200 rounded">All doctors are active!</p>';
+
+        // 2. Unpaid Ongoing / Pending Cases
+        let unpaidOngoing = S.o.filter(x => {
+            let isOngoing = (x.st !== 'DONE' && x.st !== 'COMPLETE' && x.st !== 'DELIVERED');
+            let bal = (parseFloat(String(x.tot).replace(/,/g, '')) || 0) - (x.amtPaid || 0);
+            return isOngoing && bal > 0;
+        });
+        
+        let unpaidHtml = unpaidOngoing.map(x => {
+            let bal = (parseFloat(String(x.tot).replace(/,/g, '')) || 0) - (x.amtPaid || 0);
+            let idx = S.o.indexOf(x);
+            return `
+                <div class="p-2 bg-orange-50 border border-orange-100 rounded flex justify-between items-center cursor-pointer hover:bg-orange-100 transition-colors" onclick="go('clinic_support'); setTimeout(()=>vOrd(${idx}), 300)">
+                    <div class="flex flex-col">
+                        <span class="font-bold text-xs text-orange-900">${x.id} - ${x.doc}</span>
+                        <span class="text-[9px] font-black text-gray-500 uppercase">${x.st}</span>
+                    </div>
+                    <span class="text-xs text-red-600 font-black">BAL: ₱${bal.toLocaleString()}</span>
+                </div>
+            `;
+        }).join('');
+        document.getElementById('alert-unpaid-ongoing').innerHTML = unpaidHtml || '<p class="text-xs text-gray-500 font-bold p-2 text-center border-2 border-dashed border-gray-200 rounded">No unpaid ongoing cases!</p>';
         
         popSel('dash-loc-select', ["ALL LOCATIONS", ...S.d.map(x=>x.addr).filter(a=>a)]);
         updateDashMap(); renderSnapshot();
@@ -1189,7 +1239,7 @@
         document.getElementById('dash-snap-list').innerHTML = upcoming.map(x => {
             let dueDay = x.due ? x.due.split('T')[0] : '';
             return `
-            <div class="snap-item ${dueDay === today ? 'border-red-500 bg-red-50' : ''}" onclick="vOrd(${S.o.indexOf(x)})">
+            <div class="snap-item ${dueDay === today ? 'border-red-500 bg-red-50' : ''}" onclick="go('clinic_support'); setTimeout(()=>vOrd(${S.o.indexOf(x)}), 300)">
                 <div class="flex justify-between items-center font-black">
                     <span style="color: black !important; font-size: 11px;">${x.id}</span>
                     <span class="text-[9px] ${dueDay === today ? 'text-red-600' : 'text-blue-500'}">${dueDay === today ? 'DUE TODAY' : (x.due ? x.due.replace('T',' ') : '')}</span>
@@ -1280,6 +1330,125 @@
         document.getElementById('mod-doc').classList.add('active');
     }
 
+    function rAcc() {
+        let inProdCases = S.o.filter(x => x.st === 'IN PRODUCTION' || x.st === 'ONGOING').length;
+        let discountedCases = S.o.filter(x => x.v && x.v !== 'NONE').length;
+        
+        let accStatsHtml = `
+            <div class="card border-l-4 border-blue-500"><b>DOCTORS</b><h2 class="text-2xl lg:text-3xl font-black">${S.d.length}</h2></div>
+            <div class="card border-l-4 border-orange-500"><b>CASES</b><h2 class="text-2xl lg:text-3xl font-black">${S.o.length}</h2></div>
+            <div class="card border-l-4 border-purple-500"><b>IN PRODUCTION</b><h2 class="text-2xl lg:text-3xl font-black">${inProdCases}</h2></div>
+            <div class="card border-l-4 border-green-500"><b>DISCOUNTED</b><h2 class="text-2xl lg:text-3xl font-black">${discountedCases}</h2></div>
+        `;
+        let accContainer = document.getElementById('acc-stats-grid');
+        if(accContainer) accContainer.innerHTML = accStatsHtml;
+
+        let filter = document.getElementById('acc-filter').value;
+        let tbody = document.getElementById('b-receivables');
+        
+        let rows = S.o.map((x, i) => {
+            let tot = parseFloat(String(x.tot).replace(/,/g, '')) || 0;
+            let paid = x.amtPaid || 0;
+            let bal = tot - paid;
+            let status = bal <= 0 ? 'PAID' : (paid > 0 ? 'PARTIAL' : 'UNPAID');
+
+            if(filter === 'UNPAID' && bal <= 0) return '';
+
+            return `<tr class="cursor-pointer hover:bg-slate-50 transition-colors" onclick="viewRelatedPayments(${i})">
+                <td>${x.id}</td><td>${x.doc}</td><td class="text-blue-600 font-bold">₱${tot.toLocaleString()}</td>
+                <td class="text-green-600 font-bold">₱${paid.toLocaleString()}</td>
+                <td class="text-red-600 font-bold">₱${bal.toLocaleString()}</td>
+                <td><span class="px-2 py-1 text-[9px] font-black rounded border ${bal<=0?'bg-green-100 text-green-800':'bg-red-100 text-red-800'}">${status}</span></td>
+            </tr>`;
+        }).join('');
+        
+        if(tbody) tbody.innerHTML = rows || `<tr><td colspan="6" class="text-center p-6 text-gray-400 font-bold">No receivables matching filter.</td></tr>`;
+
+        let bAcct = document.getElementById('b-acct');
+        if(bAcct) {
+            bAcct.innerHTML = S.o.filter(x => x.v && x.v !== 'NONE').map(x => `
+                <tr><td>${x.id}</td><td>${x.doc}</td><td>${x.pat}</td>
+                <td class="text-purple-600 font-black">${x.v}</td>
+                <td class="text-blue-600 font-black">₱${x.tot}</td>
+                <td><span class="bg-gray-100 px-2 py-1 rounded border text-[9px] font-bold">${x.st}</span></td></tr>
+            `).join('') || `<tr><td colspan="6" class="text-center p-4">No discounted cases.</td></tr>`;
+        }
+    }
+
+    function viewRelatedPayments(idx) {
+        currentPayCaseIdx = idx;
+        let x = S.o[idx];
+        let tbody = document.getElementById('b-payments');
+        
+        let rows = document.querySelectorAll('#b-receivables tr');
+        rows.forEach(r => r.classList.remove('bg-blue-50'));
+        if(event && event.currentTarget) event.currentTarget.classList.add('bg-blue-50');
+
+        if(!x.payments || x.payments.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4" class="text-center p-6 text-gray-400 font-bold">No payments recorded for this case.</td></tr>`;
+        } else {
+            tbody.innerHTML = x.payments.map(p => `
+                <tr><td class="font-bold">${p.date}</td><td class="text-green-600 font-black">₱${p.amt.toLocaleString()}</td>
+                <td class="font-bold">${p.method}</td><td>${p.notes || '-'}</td></tr>
+            `).join('');
+        }
+    }
+
+    function openPaymentModal() {
+        if(currentPayCaseIdx === -1) return alert("Please select a Case from the Account Receivables list first.");
+        
+        let x = S.o[currentPayCaseIdx];
+        document.getElementById('pay-ac-num').value = x.id;
+        document.getElementById('pay-dentist').value = x.doc;
+        
+        let tot = parseFloat(String(x.tot).replace(/,/g, '')) || 0;
+        document.getElementById('pay-tot').value = "₱" + tot.toLocaleString();
+        
+        let today = new Date();
+        today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+        document.getElementById('pay-date').value = today.toISOString().split('T')[0];
+        
+        document.getElementById('pay-amt').value = '';
+        document.getElementById('pay-notes').value = '';
+        
+        calcPayBal();
+        document.getElementById('mod-payment').classList.add('active');
+    }
+
+    function calcPayBal() {
+        if(currentPayCaseIdx === -1) return;
+        let x = S.o[currentPayCaseIdx];
+        let tot = parseFloat(String(x.tot).replace(/,/g, '')) || 0;
+        let alreadyPaid = x.amtPaid || 0;
+        let inputAmt = parseFloat(document.getElementById('pay-amt').value) || 0;
+        
+        let remaining = tot - alreadyPaid - inputAmt;
+        document.getElementById('pay-bal').innerText = remaining.toLocaleString();
+    }
+
+    function savePayment() {
+        if(currentPayCaseIdx === -1) return;
+        let amt = parseFloat(document.getElementById('pay-amt').value);
+        if(!amt || amt <= 0) return alert("Please enter a valid payment amount.");
+
+        let pDate = document.getElementById('pay-date').value;
+        let pMethod = document.getElementById('pay-method').value;
+        let pNotes = document.getElementById('pay-notes').value.toUpperCase();
+
+        let x = S.o[currentPayCaseIdx];
+        if(!x.payments) x.payments = [];
+        
+        x.payments.push({ date: pDate, amt: amt, method: pMethod, notes: pNotes });
+        x.amtPaid = (x.amtPaid || 0) + amt;
+
+        sv(); 
+        rAcc(); 
+        dash();
+        viewRelatedPayments(currentPayCaseIdx);
+        closeModals(); 
+        alert("Payment Recorded Successfully!");
+    }
+
     // CLINIC SUPPORT
     function rOrd(){
         let q = document.getElementById('o-search').value.toUpperCase();
@@ -1325,6 +1494,10 @@
             <div class="bg-slate-50 p-2 rounded border"><b>QTY:</b> ${x.qty}</div>
             <div class="bg-slate-50 p-2 rounded border"><b>DISCOUNT APPLIED:</b> ${x.v||'NONE'}</div>
             <div class="bg-slate-50 p-2 rounded border"><b>PAYMENT:</b> ${x.pay}</div>
+            
+            <div class="bg-slate-50 p-2 rounded border"><b>STAFF HANDLER:</b> ${x.staff || 'N/A'}</div>
+            <div class="bg-slate-50 p-2 rounded border"><b>OR NUMBER:</b> ${x.or || 'N/A'}</div>
+
             <div class="bg-blue-50 p-2 rounded border border-blue-200 col-span-1 sm:col-span-2"><b>TOTAL:</b> <span class="text-lg font-black text-blue-600">₱${x.tot}</span></div>
             <div class="bg-slate-50 p-2 rounded border col-span-1 sm:col-span-2"><b>ITEMS:</b> ${(x.prods||[]).join(', ')}</div>
             <div class="col-span-1 sm:col-span-2 bg-slate-50 p-2 rounded border"><b>REMARKS:</b> ${x.rem||'NONE'}</div>
@@ -1336,6 +1509,9 @@
         }
         if (x.qrImg && x.qrImg.startsWith('data:image')) {
             viewHTML += `<div class="bg-slate-50 p-2 rounded border col-span-1 sm:col-span-2 text-center"><b>PAYMENT QR CODE:</b><br><img src="${x.qrImg}" class="w-48 h-48 mx-auto mt-2 object-contain border bg-white shadow-sm"></div>`;
+        }
+        if (x.payImg && x.payImg.startsWith('data:image')) {
+            viewHTML += `<div class="bg-slate-50 p-2 rounded border col-span-1 sm:col-span-2 text-center"><b>PROOF OF PAYMENT:</b><br><img src="${x.payImg}" class="max-w-full h-auto mx-auto mt-2 object-contain border bg-white shadow-sm"></div>`;
         }
 
         document.getElementById('view-content').innerHTML = viewHTML;
@@ -1376,9 +1552,15 @@
             rem: document.getElementById('o-rem').value,
             doc: document.getElementById('o-doc').value,
             prods: prs,
+            
+            or: document.getElementById('o-or').value.toUpperCase(),
+            staff: document.getElementById('o-staff').value.toUpperCase(),
+            
             pImg: document.getElementById('o-pat-img').src,
             qrImg: document.getElementById('qr-img').src, 
             formImg: document.getElementById('o-form-img').src, 
+            payImg: document.getElementById('o-pay-proof-img').src, 
+            
             stlName: document.getElementById('o-stl-name').innerText,
             asn: (i !== "" ? S.o[i].asn : ""),
             amtPaid: (i !== "" ? (S.o[i].amtPaid || 0) : 0),
@@ -1415,6 +1597,9 @@
         document.getElementById('o-shade').value = x.shade || '';
         document.getElementById('o-v').value = x.v || '';
         
+        document.getElementById('o-or').value = x.or || '';
+        document.getElementById('o-staff').value = x.staff || '';
+        
         document.getElementById('o-stl-name').innerText = x.stlName || 'NO FILE';
         
         if (x.formImg && x.formImg.startsWith('data:image')) {
@@ -1423,6 +1608,14 @@
         } else {
             document.getElementById('o-form-img').src = '';
             document.getElementById('o-form-img').classList.add('hidden');
+        }
+
+        if (x.payImg && x.payImg.startsWith('data:image')) {
+            document.getElementById('o-pay-proof-img').src = x.payImg;
+            document.getElementById('o-pay-proof-img').classList.remove('hidden');
+        } else {
+            document.getElementById('o-pay-proof-img').src = '';
+            document.getElementById('o-pay-proof-img').classList.add('hidden');
         }
         
         document.getElementById('o-pay').value = x.pay || 'CASH';
@@ -1545,12 +1738,27 @@
         let v=prompt('New Value:'); 
         if(v){ 
             if(t==='loc') { S.locs.push(v); popSel('d-loc', S.locs); document.getElementById('d-loc').value = v; } 
-            if(t==='stat') { S.stats.push(v.toUpperCase()); popSel('o-stat', S.stats); document.getElementById('o-stat').value = v.toUpperCase(); } 
+            if(t==='stat') { 
+                S.stats.push(v.toUpperCase()); 
+                popSel('o-stat', S.stats); 
+                document.getElementById('o-stat').value = v.toUpperCase(); 
+                updateProdFilterDropdown(); // Refresh the Production filter globally 
+            } 
             if(t==='ctype') { S.ctypes.push(v.toUpperCase()); popSel('o-ctype', S.ctypes); document.getElementById('o-ctype').value = v.toUpperCase(); onTypeChange(false); } 
             if(t==='font') { S.fonts.push(v); popSel('ui-font', S.fonts); document.getElementById('ui-font').value = v; } 
             if(t==='shade') { S.shades.push(v.toUpperCase()); popSel('o-shade', S.shades); document.getElementById('o-shade').value = v.toUpperCase(); }
             sv(); alert('Added and Updated!'); 
         } 
+    }
+
+    // NEW: Centralized function to dynamically update the Production dropdown filter based on available statuses
+    function updateProdFilterDropdown() {
+        let sel = document.getElementById('prod-filter');
+        if (!sel) return;
+        let currentVal = sel.value;
+        sel.innerHTML = '<option value="ALL">ALL STATUS</option>' + S.stats.map(s => `<option value="${s}">${s}</option>`).join('');
+        if(S.stats.includes(currentVal)) sel.value = currentVal;
+        else sel.value = 'ALL';
     }
     
     function updateMap(){ 
@@ -1598,14 +1806,19 @@
         if(t==='ord'){
             if (S.d.length === 0) return alert("PLEASE ADD A DOCTOR FIRST");
             document.querySelectorAll('#mod-ord input:not([readonly]):not([type="file"])').forEach(i=>i.value=''); 
+            
             document.getElementById('o-stl-name').innerText = 'NO FILE';
             document.getElementById('o-form-img').src = '';
             document.getElementById('o-form-img').classList.add('hidden');
+            document.getElementById('o-pay-proof-img').src = '';
+            document.getElementById('o-pay-proof-img').classList.add('hidden');
+
             document.getElementById('o-idx').value = ""; 
             document.getElementById('o-qty').value = "1";
             document.getElementById('o-sex').value = ""; 
             document.getElementById('qr-img').src = ""; 
             document.querySelectorAll('.sex-btn').forEach(b => b.classList.remove('active')); 
+            
             popSel('o-doc', S.d.map(x=>x.n)); 
             popSel('o-stat', S.stats); 
             popSel('o-ctype', S.ctypes);
@@ -1635,9 +1848,8 @@
         let prodHtml = '';
 
         S.o.forEach((x, i) => {
-            if (filterVal === 'NEW' && x.st !== 'NEW') return;
-            if (filterVal === 'IN PRODUCTION' && (x.st !== 'IN PRODUCTION' && x.st !== 'ONGOING')) return;
-            if (filterVal === 'COMPLETE' && (x.st !== 'DONE' && x.st !== 'COMPLETE' && x.st !== 'DELIVERED')) return;
+            // Strictly match exactly what is selected in the dynamic filter dropdown
+            if (filterVal !== 'ALL' && x.st !== filterVal) return;
 
             let isActive = selectedProdIdx === i ? 'pay-row-active' : 'cursor-pointer hover:bg-slate-50 transition-colors';
             
@@ -1660,7 +1872,7 @@
         });
 
         let tbody = document.getElementById('b-prod');
-        if (tbody) tbody.innerHTML = prodHtml || `<tr><td colspan="7" class="text-center p-6 text-gray-400 font-bold">NO RECORDS FOUND</td></tr>`;
+        if (tbody) tbody.innerHTML = prodHtml || `<tr><td colspan="7" class="text-center p-6 text-gray-400 font-bold">NO RECORDS FOUND FOR "${filterVal}"</td></tr>`;
 
         renderProdDetails();
     }
@@ -1707,6 +1919,16 @@
                             <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Case Number</div>
                             <div class="w-2/3 text-[13px] font-black text-[#189ad3]">${x.id}</div>
                         </div>
+                        
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Staff Handler</div>
+                            <div class="w-2/3 text-[13px] font-semibold text-gray-800">${x.staff || '-'}</div>
+                        </div>
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">OR Number</div>
+                            <div class="w-2/3 text-[13px] font-semibold text-gray-800">${x.or || '-'}</div>
+                        </div>
+
                         <div class="flex mt-1">
                             <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Date Submitted</div>
                             <div class="w-2/3 text-[13px] font-semibold text-gray-800">${x.date ? x.date.split('T')[0] : '-'}</div>
@@ -1810,17 +2032,17 @@
         alert('Pricing Catalog Updated Successfully!');
     }
 
-    // CALENDAR - COLOR CODED STATUS VIEW AND SIDEBAR
+    // CALENDAR
     function initFullCal(){
         let calEl = document.getElementById('calendar'); 
         if(window.fullCal) { window.fullCal.destroy(); }
         
         let calEvents = S.o.flatMap(x => {
             let evs = [];
-            let color = '#f59e0b'; // Default Yellow/Orange
-            if(x.st === 'NEW') color = '#dc2626'; // Red
-            if(x.st === 'IN TRANSIT' || x.st === 'DONE' || x.st === 'DELIVERED' || x.st === 'COMPLETE') color = '#10b981'; // Green
-            if(x.st === 'IN PRODUCTION') color = '#3b82f6'; // Blue
+            let color = '#f59e0b';
+            if(x.st === 'NEW') color = '#dc2626';
+            if(x.st === 'IN TRANSIT' || x.st === 'DONE' || x.st === 'DELIVERED' || x.st === 'COMPLETE') color = '#10b981';
+            if(x.st === 'IN PRODUCTION') color = '#3b82f6';
 
             if(x.date) evs.push({ title: `[RCVD] ${x.id} - ${x.pat}`, start: x.date, backgroundColor: color, borderColor: color, extendedProps: { caseObj: x } });
             if(x.due) evs.push({ title: `[DUE] ${x.id} - ${x.pat}`, start: x.due, backgroundColor: '#000000', borderColor: '#000000', textColor: '#ffffff', extendedProps: { caseObj: x } });
