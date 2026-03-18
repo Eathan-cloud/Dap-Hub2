@@ -56,7 +56,7 @@
 
         .card { background: var(--card); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border); margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; border: 1px solid var(--border); background: var(--card); }
-        table { width: 100%; min-width: 1600px; text-align: left; border-collapse: collapse; }
+        table { width: 100%; min-width: 1000px; text-align: left; border-collapse: collapse; }
         th { background: #001f2d; color: white; padding: 12px; font-size: 10px; text-transform: uppercase; position: sticky; top: 0; z-index: 10; }
         td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 600; color: var(--text); }
         
@@ -117,6 +117,9 @@
         
         #maint-overlay { position: fixed; inset: 0; background: rgba(0,31,61,0.95); z-index: 99999; display: none; align-items: center; justify-content: center; padding: 20px; text-align: center; backdrop-filter: blur(4px); }
         #maint-overlay.active { display: flex; }
+
+        /* Custom Styles for Highlighted Rows */
+        .pay-row-active { background-color: #eff6ff !important; border-left: 4px solid #3b82f6; }
     </style>
 </head>
 <body>
@@ -241,13 +244,13 @@
                             <h3 class="font-black text-red-600 uppercase">Recycle Bin (Recovery)</h3>
                             <button onclick="emptyTrash()" class="btn btn-red !text-[9px]">EMPTY TRASH</button>
                         </div>
-                        <p class="text-xs text-gray-500 mb-4 font-bold">All deleted Doctors, Cases, Vouchers, Folders, and Users are safely kept here. You can <span class="text-blue-600">VIEW</span>, RESTORE or permanently HARD DELETE them.</p>
+                        <p class="text-xs text-gray-500 mb-4 font-bold">All deleted Doctors, Cases, Discounts, Folders, and Users are safely kept here. You can <span class="text-blue-600">VIEW</span>, RESTORE or permanently HARD DELETE them.</p>
                         <div id="trash-list" class="space-y-2 max-h-96 overflow-y-auto pr-2 custom-scroll"></div>
                     </div>
                 </section>
 
                 <section id="p-dashboard" class="page">
-                    <h1 class="text-3xl font-black uppercase mb-6">Analytics Dashboard</h1>
+                    <h1 class="text-3xl font-black uppercase mb-6 text-gray-800">Analytics Dashboard</h1>
                     
                     <div id="stats-grid" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
                     
@@ -274,12 +277,63 @@
                         <div class="card"><h4>Case Status Overview</h4><canvas id="chartStatus"></canvas></div>
                     </div>
                 </section>
-                
-                <section id="p-acct" class="page">
-                    <h1 class="text-3xl font-black uppercase mb-6 text-[#10b981]">ACCT - Data Overview</h1>
-                    <div id="acct-summary" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
-                    <div class="card border-t-4 border-blue-500">
-                        <h3 class="font-black mb-4 uppercase text-blue-700">Cross-Department Analysis</h3>
+
+                <section id="p-accounting" class="page">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-center mb-6 gap-4">
+                        <h1 class="text-2xl font-black uppercase text-[#189ad3]">Accounting & Analysis</h1>
+                        <button onclick="document.getElementById('p-catalog').classList.toggle('hidden'); renderCatalog();" class="btn btn-blue shadow-sm">⚙️ PRICING CATALOG</button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 xl:grid-cols-5 gap-6 mb-6">
+                        
+                        <div class="card p-0 col-span-1 xl:col-span-3 flex flex-col h-[600px] border-t-4 border-[#189ad3]">
+                            <div class="p-4 bg-gray-50 border-b flex justify-between items-center shrink-0">
+                                <h3 class="font-black uppercase text-gray-700">Accounts Receivables</h3>
+                                <select id="acc-filter" class="inp !mb-0 !py-1 !w-auto text-[10px] font-bold" onchange="if(typeof rAcc === 'function') rAcc()">
+                                    <option value="ALL">ALL RECORDS</option>
+                                    <option value="UNPAID">UNPAID / PARTIAL</option>
+                                </select>
+                            </div>
+                            <div class="table-wrap flex-1 overflow-y-auto rounded-none border-x-0 border-b-0">
+                                <table class="w-full !min-w-[700px]">
+                                    <thead>
+                                        <tr>
+                                            <th>CASE ID</th>
+                                            <th>DENTIST NAME</th>
+                                            <th>TOTAL COST</th>
+                                            <th>TOTAL PAID</th>
+                                            <th>REMAINING BALANCE</th>
+                                            <th>PAYMENT STATUS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="b-receivables"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="card p-0 col-span-1 xl:col-span-2 flex flex-col h-[600px] border-t-4 border-green-500">
+                            <div class="p-4 bg-gray-50 border-b flex justify-between items-center shrink-0">
+                                <h3 class="font-black uppercase text-gray-700">Related Payment</h3>
+                                <button onclick="openPaymentModal()" class="btn btn-green !py-1 text-[10px] shadow-sm">+ ADD</button>
+                            </div>
+                            <div class="table-wrap flex-1 overflow-y-auto rounded-none border-x-0 border-b-0">
+                                <table class="w-full !min-w-[400px]">
+                                    <thead class="bg-gray-800">
+                                        <tr>
+                                            <th class="!bg-gray-800">DATE</th>
+                                            <th class="!bg-gray-800">AMOUNT</th>
+                                            <th class="!bg-gray-800">METHOD</th>
+                                            <th class="!bg-gray-800">NOTES</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="b-payments"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card border-t-4 border-purple-500">
+                        <h3 class="font-black mb-4 uppercase text-purple-700">Cross-Department Analysis (Discounted)</h3>
                         <div class="table-wrap">
                             <table id="t-acct">
                                 <thead><tr><th>CASE ID</th><th>DOCTOR</th><th>PATIENT</th><th>DISCOUNT</th><th>AMOUNT</th><th>PROD STATUS</th></tr></thead>
@@ -287,39 +341,16 @@
                             </table>
                         </div>
                     </div>
-                </section>
 
-                <section id="p-accounting" class="page">
-                    <div class="flex justify-between items-center mb-6">
-                        <h1 class="text-2xl font-black uppercase text-[#189ad3]">Accounts Receivable</h1>
-                        <button onclick="document.getElementById('p-catalog').classList.toggle('hidden')" class="btn btn-blue">TOGGLE PRICING CATALOG</button>
-                    </div>
-                    
-                    <div class="card mb-6">
-                        <h3 class="font-black mb-4 uppercase text-gray-700">Payment Tracking Ledger</h3>
-                        <div class="table-wrap">
-                            <table id="t-acc-ledger">
-                                <thead>
-                                    <tr>
-                                        <th>CASE ID</th>
-                                        <th>DENTIST</th>
-                                        <th>PATIENT</th>
-                                        <th>TOTAL COST</th>
-                                        <th>AMOUNT PAID</th>
-                                        <th>BALANCE</th>
-                                        <th>STATUS</th>
-                                        <th>ACTION</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="b-acc-ledger"></tbody>
-                            </table>
+                    <div id="p-catalog" class="hidden card mt-6 border-t-8 border-blue-600 bg-blue-50/50">
+                        <div class="flex justify-between items-center mb-6 border-b border-blue-200 pb-2">
+                            <h3 class="font-black uppercase text-blue-900 text-lg">Product Pricing Catalog (23 Items)</h3>
+                            <span class="text-xs font-bold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">LIVE EDITOR</span>
                         </div>
-                    </div>
-
-                    <div id="p-catalog" class="hidden">
-                        <h3 class="font-black mb-4 uppercase">Product Pricing Catalog</h3>
-                        <div id="price-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
-                        <button onclick="savePrices()" class="btn btn-green w-full py-4 mt-6 shadow-xl text-lg">SAVE ALL PRICES</button>
+                        <div id="price-grid" class="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-4"></div>
+                        <div class="flex justify-end mt-6 border-t border-blue-200 pt-4">
+                            <button onclick="savePrices()" class="btn btn-blue py-3 px-10 shadow-xl text-sm w-full md:w-auto">SAVE CONFIGURATION</button>
+                        </div>
                     </div>
                 </section>
 
@@ -335,39 +366,84 @@
                     <div class="table-wrap"><table id="t-doc"><thead><tr><th>PIC</th><th>ID</th><th>NAME</th><th>TIN</th><th>CLINIC</th><th>PHONE</th><th>PRC</th><th>LOC</th><th>ADDRESS</th><th>ACTION</th></tr></thead><tbody id="b-doc"></tbody></table></div>
                 </section>
 
-                <section id="p-order" class="page">
+                <section id="p-clinic_support" class="page">
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
-                        <h1 class="text-2xl font-black italic text-[#189ad3]">Case Entry Hub</h1>
+                        <h1 class="text-2xl font-black uppercase text-[#189ad3]">Clinic Support</h1>
                         <div class="flex flex-wrap gap-2 w-full md:w-auto">
                             <input id="o-search" onkeyup="rOrd()" placeholder="Search Case..." class="inp !mb-0 flex-1 md:!w-48 bg-white">
-                            <button onclick="modal('ord')" class="btn btn-green shrink-0">NEW</button>
+                            <button onclick="modal('ord')" class="btn btn-green shrink-0">NEW JOB ORDER</button>
                             <button onclick="pdf('t-ord')" class="btn btn-red shrink-0">PDF</button>
                         </div>
                     </div>
-                    <div class="table-wrap"><table id="t-ord"><thead><tr><th>CASE ID</th><th>PIC</th><th>PATIENT</th><th>SEX</th><th>RECEIVED</th><th>COMPLETED</th><th>DELIVERY</th><th>STATUS</th><th>SHADE</th><th>UNITS</th><th>DISCOUNT</th><th>PAYMENT</th><th>AMOUNT</th><th>ACTION</th></tr></thead><tbody id="b-ord"></tbody></table></div>
+                    <div class="table-wrap"><table id="t-ord"><thead><tr><th>CASE ID</th><th>PIC</th><th>PATIENT</th><th>SEX</th><th>AGE</th><th>RECEIVED</th><th>COMPLETED</th><th>DELIVERY</th><th>STATUS</th><th>SHADE</th><th>UNITS</th><th>DISCOUNT</th><th>PAYMENT</th><th>AMOUNT</th><th>ACTION</th></tr></thead><tbody id="b-ord"></tbody></table></div>
                 </section>
 
                 <section id="p-production" class="page">
-                    <h1 class="text-2xl font-black italic text-[#d97706] mb-4 uppercase">Production Queue</h1>
-                    <div class="table-wrap"><table id="t-prod"><thead><tr><th>CASE ID</th><th>DELIVERY</th><th>STATUS</th><th>ASSIGNED</th><th>REMARKS</th><th>ACTION</th></tr></thead><tbody id="b-prod"></tbody></table></div>
-                </section>
+                    <h1 class="text-2xl font-black uppercase text-[#d97706] mb-6">Production Module</h1>
+                    
+                    <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-6">
+                        <div class="card p-0 col-span-1 xl:col-span-2 flex flex-col h-[700px] border-t-4 border-[#d97706]">
+                            <div class="p-4 bg-gray-50 border-b flex justify-between items-center shrink-0">
+                                <h3 class="font-black uppercase text-gray-700">Completed Job Orders</h3>
+                                <select id="prod-filter" class="inp !mb-0 !py-1 !w-auto text-[10px] font-bold" onchange="rProd()">
+                                    <option value="ALL">ALL STATUS</option>
+                                    <option value="NEW">NEW</option>
+                                    <option value="IN PRODUCTION">IN PRODUCTION</option>
+                                    <option value="COMPLETE">COMPLETE / DONE</option>
+                                </select>
+                            </div>
+                            <div class="table-wrap flex-1 overflow-y-auto rounded-none border-x-0 border-b-0">
+                                <table class="w-full !min-w-[700px]">
+                                    <thead>
+                                        <tr>
+                                            <th>STATUS</th>
+                                            <th>DENTIST NAME</th>
+                                            <th>DATE SUBMITTED</th>
+                                            <th>DELIVERY DATE</th>
+                                            <th>DATE COMPLETED</th>
+                                            <th>TECHNICIAN</th>
+                                            <th>PATIENT NAME</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="b-prod"></tbody>
+                                </table>
+                            </div>
+                        </div>
 
-                <section id="p-calendar" class="page">
-                    <div id="calendar-container" class="h-[600px] lg:h-[800px]">
-                        <div style="min-width: 1000px; height: 100%;">
-                            <div id="calendar" class="h-full w-full"></div>
+                        <div class="card p-0 col-span-1 flex flex-col h-[700px] border-t-4 border-[#189ad3] overflow-hidden">
+                            <div class="p-4 bg-gray-50 border-b shrink-0">
+                                <h3 class="font-black text-lg text-gray-800">Details</h3>
+                            </div>
+                            <div id="prod-details-pane" class="flex-1 overflow-y-auto p-6 bg-white" style="-webkit-overflow-scrolling: touch;">
+                                <div class="text-center text-gray-400 font-bold mt-20 text-[10px] uppercase tracking-widest border-2 border-dashed p-6 rounded-xl bg-gray-50">Select a Case to View Details</div>
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                <section id="p-voucher" class="page">
+                <section id="p-calendar" class="page">
+                    <h1 class="text-2xl font-black uppercase text-blue-600 mb-6">Production Workspace</h1>
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[75vh]">
+                        <div class="lg:col-span-3 card p-4 h-full flex flex-col shadow-lg border-t-4 border-blue-500">
+                            <div id="calendar" class="w-full h-full flex-1"></div>
+                        </div>
+                        <div class="card p-0 flex flex-col h-full border-t-4 border-orange-500">
+                            <div class="p-4 border-b bg-orange-50 shrink-0">
+                                <h3 class="font-black text-orange-700 uppercase text-sm">Action Items / Due</h3>
+                            </div>
+                            <div id="cal-tasks-list" class="flex-1 overflow-y-auto custom-scroll p-4 space-y-3 bg-white"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="p-discount" class="page">
                     <h1 class="text-2xl font-black mb-6 uppercase text-[#8b5cf6]">Discount Generator</h1>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="card">
                             <label>CODE / IDENTIFIER</label><input id="v-code" class="inp uppercase mb-2">
                             <label>DISCOUNT %</label><input id="v-pct" type="number" class="inp mb-2">
                             <label>EXPIRY (Optional)</label><input id="v-exp" type="date" class="inp mb-4">
-                            <button onclick="addVouch()" class="btn btn-blue w-full py-3">GENERATE DISCOUNT</button>
+                            <button onclick="addDisc()" class="btn btn-blue w-full py-3">GENERATE DISCOUNT</button>
                         </div>
                         <div id="v-list" class="space-y-2"></div>
                     </div>
@@ -445,7 +521,6 @@
     <div id="mod-cal-edit" class="modal">
         <div class="modal-box !max-w-3xl">
             <h2 class="text-2xl font-black mb-4 uppercase text-[#189ad3]">Calendar Schedule Update</h2>
-            
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div><b class="text-gray-500 text-[10px] tracking-widest uppercase block">Case ID</b> <span id="cal-v-id" class="font-black text-blue-700 text-lg"></span></div>
                 <div><b class="text-gray-500 text-[10px] tracking-widest uppercase block">Patient</b> <span id="cal-v-pat" class="font-bold text-lg"></span></div>
@@ -454,67 +529,65 @@
                 <div><b class="text-gray-500 text-[10px] tracking-widest uppercase block">Total QTY</b> <span id="cal-v-qty" class="font-bold"></span></div>
                 <div class="sm:col-span-2"><b class="text-gray-500 text-[10px] tracking-widest uppercase block">Items / Products</b> <span id="cal-v-items" class="text-xs font-bold text-gray-800"></span></div>
             </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input type="hidden" id="cal-idx">
                 <div><label class="text-[10px] font-black tracking-widest text-orange-600">ORDER RECEIVED</label><input id="cal-date" type="datetime-local" class="inp border-orange-300"></div>
                 <div><label class="text-[10px] font-black tracking-widest text-green-600">ORDER COMPLETED</label><input id="cal-comp" type="datetime-local" class="inp border-green-300"></div>
                 <div><label class="text-[10px] font-black tracking-widest text-blue-600">DELIVERY DATE</label><input id="cal-due" type="datetime-local" class="inp border-blue-300"></div>
                 <div><label class="text-[10px] font-black tracking-widest text-gray-600">RETURN DATE</label><input id="cal-ret" type="datetime-local" class="inp border-gray-300"></div>
-                
                 <div class="sm:col-span-2 mt-2">
                     <label class="text-[10px] font-black tracking-widest text-gray-600">REMARKS / NOTES</label>
                     <textarea id="cal-rem" class="inp h-20 w-full p-3" placeholder="Add specific notes or instructions here..."></textarea>
                 </div>
             </div>
-
             <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6 border-t pt-4">
                 <button onclick="closeModals()" class="btn btn-red py-3">CANCEL</button>
-                <button onclick="saveCalDates()" class="btn btn-green px-10 py-3 shadow-lg">SAVE SCHEDULE & NOTES</button>
+                <button onclick="saveCalDates()" class="btn btn-green px-10 py-3 shadow-lg">SAVE Schedule & NOTES</button>
             </div>
         </div>
     </div>
 
-    <div id="mod-excel-view" class="modal">
-        <div class="modal-box !max-w-5xl">
-            <h2 class="text-xl font-black mb-4 uppercase text-[#10b981]">Data Preview</h2>
-            <div id="excel-viewer-area" class="overflow-auto border p-2 bg-white max-h-[70vh]" style="-webkit-overflow-scrolling: touch;"></div>
-            <div class="flex justify-end gap-2 mt-4"><button onclick="closeModals()" class="btn btn-red w-full sm:w-auto">CLOSE</button></div>
-        </div>
-    </div>
+    <div id="mod-payment" class="modal">
+        <div class="modal-box !max-w-[600px] border-t-8 border-[#10b981]">
+            <h2 class="text-2xl font-black mb-6 uppercase text-[#10b981]">Payments Form</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="sm:col-span-2"><label class="text-[10px] font-black text-gray-500 tracking-widest">AC NUMBER (CASE ID)</label><input id="pay-ac-num" class="inp bg-slate-100 font-bold" readonly></div>
+                <div class="sm:col-span-2"><label class="text-[10px] font-black text-gray-500 tracking-widest">DENTIST NAME</label><input id="pay-dentist" class="inp bg-slate-100 font-bold" readonly></div>
+                
+                <div><label class="text-[10px] font-black text-gray-500 tracking-widest">PAYMENT DATE</label><input id="pay-date" type="date" class="inp"></div>
+                <div><label class="text-[10px] font-black text-gray-500 tracking-widest">TOTAL COST</label><input id="pay-tot" class="inp bg-slate-100 font-black text-blue-600" readonly></div>
+                
+                <div class="sm:col-span-2 border-t pt-4 mt-2"></div>
 
-    <div id="mod-user-mods" class="modal">
-        <div class="modal-box !max-w-md">
-            <h2 class="text-xl font-black mb-4 uppercase">Module Permissions</h2>
-            <div id="mods-check-list" class="space-y-1 mb-4 max-h-[50vh] overflow-y-auto" style="-webkit-overflow-scrolling: touch;"></div>
-            <input type="hidden" id="mod-target-idx">
-            <button onclick="saveUserMods()" class="btn btn-blue w-full py-3">UPDATE ACCESS</button>
-        </div>
-    </div>
-
-    <div id="mod-doc" class="modal">
-        <div class="modal-box">
-            <h2 class="text-xl font-black mb-4 uppercase text-[#189ad3]">Doctor Details</h2>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="flex flex-col items-center"><div class="img-box !w-32 !h-32" onclick="document.getElementById('d-file').click()"><img id="d-img-prev" src=""></div><input type="file" id="d-file" onchange="previewImg(this, 'd-img-prev')" class="hidden"><p class="text-[9px] font-bold text-gray-400 mt-2">TAP TO UPLOAD</p></div>
-                <div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <input type="hidden" id="d-idx">
-                    <div><label>ID</label><input id="d-id" class="inp bg-slate-100" readonly></div>
-                    <div><label>NAME</label><input id="d-name" class="inp uppercase"></div>
-                    <div><label>TIN</label><input id="d-tin" class="inp"></div>
-                    <div><label>PRC #</label><input id="d-prc" class="inp"></div>
-                    <div><label>CLINIC</label><input id="d-clinic" class="inp"></div>
-                    <div><label>PHONE</label><input id="d-phone" class="inp"></div>
-                    <div><label>LOC <button onclick="addOpt('loc')" class="bg-black text-white px-1 rounded">+</button></label><select id="d-loc" class="inp"></select></div>
-                    <div><label>ADDRESS (MAP SEARCH)</label><input id="d-addr" class="inp" onkeyup="updateMap()"></div>
+                <div><label class="text-[10px] font-black text-gray-500 tracking-widest">AMOUNT PAID</label><input id="pay-amt" type="number" class="inp border-2 border-green-400 font-black text-xl text-green-700 py-3" placeholder="₱0.00" onkeyup="if(typeof calcPayBal === 'function') calcPayBal()" onchange="if(typeof calcPayBal === 'function') calcPayBal()"></div>
+                <div><label class="text-[10px] font-black text-gray-500 tracking-widest">PAYMENT METHOD</label>
+                    <select id="pay-method" class="inp py-3">
+                        <option value="CASH">Cash Payment</option>
+                        <option value="GCASH">GCash Transfer</option>
+                        <option value="BANK">Bank Transfer</option>
+                        <option value="CHEQUE">Cheque</option>
+                    </select>
+                </div>
+                
+                <div class="sm:col-span-2"><label class="text-[10px] font-black text-gray-500 tracking-widest">PAYMENT NOTES (OR#)</label><input id="pay-notes" class="inp uppercase py-3" placeholder="OR#123453"></div>
+                
+                <div class="sm:col-span-2 bg-slate-800 p-4 rounded-xl text-center shadow-inner mt-2">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Remaining Balance</span>
+                    <div class="text-4xl font-black text-white mt-1">₱<span id="pay-bal">0</span></div>
                 </div>
             </div>
-            <div class="h-48 mt-4 overflow-hidden rounded border"><iframe id="doc-map" width="100%" height="100%" frameborder="0"></iframe></div>
-            <div class="flex flex-col sm:flex-row justify-end gap-2 mt-6"><button onclick="closeModals()" class="btn btn-red py-3">CANCEL</button><button onclick="saveDoc()" class="btn btn-green px-10 py-3">SAVE</button></div>
+            <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6">
+                <button onclick="closeModals()" class="btn btn-red py-4 flex-1">CANCEL</button>
+                <button onclick="if(typeof savePayment === 'function') savePayment()" class="btn btn-green py-4 flex-1 shadow-xl text-sm">ACCEPT PAYMENT</button>
+            </div>
         </div>
     </div>
-
-   <div id="mod-ord" class="modal">
+    
+    <div id="mod-excel-view" class="modal"><div class="modal-box !max-w-5xl"><h2 class="text-xl font-black mb-4 uppercase text-[#10b981]">Data Preview</h2><div id="excel-viewer-area" class="overflow-auto border p-2 bg-white max-h-[70vh]" style="-webkit-overflow-scrolling: touch;"></div><div class="flex justify-end gap-2 mt-4"><button onclick="closeModals()" class="btn btn-red w-full sm:w-auto">CLOSE</button></div></div></div>
+    <div id="mod-user-mods" class="modal"><div class="modal-box !max-w-md"><h2 class="text-xl font-black mb-4 uppercase">Module Permissions</h2><div id="mods-check-list" class="space-y-1 mb-4 max-h-[50vh] overflow-y-auto" style="-webkit-overflow-scrolling: touch;"></div><input type="hidden" id="mod-target-idx"><button onclick="saveUserMods()" class="btn btn-blue w-full py-3">UPDATE ACCESS</button></div></div>
+    <div id="mod-doc" class="modal"><div class="modal-box"><h2 class="text-xl font-black mb-4 uppercase text-[#189ad3]">Doctor Details</h2><div class="grid grid-cols-1 lg:grid-cols-3 gap-6"><div class="flex flex-col items-center"><div class="img-box !w-32 !h-32" onclick="document.getElementById('d-file').click()"><img id="d-img-prev" src=""></div><input type="file" id="d-file" onchange="previewImg(this, 'd-img-prev')" class="hidden"><p class="text-[9px] font-bold text-gray-400 mt-2">TAP TO UPLOAD</p></div><div class="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4"><input type="hidden" id="d-idx"><div><label>ID</label><input id="d-id" class="inp bg-slate-100" readonly></div><div><label>NAME</label><input id="d-name" class="inp uppercase"></div><div><label>TIN</label><input id="d-tin" class="inp"></div><div><label>PRC #</label><input id="d-prc" class="inp"></div><div><label>CLINIC</label><input id="d-clinic" class="inp"></div><div><label>PHONE</label><input id="d-phone" class="inp"></div><div><label>LOC <button onclick="addOpt('loc')" class="bg-black text-white px-1 rounded">+</button></label><select id="d-loc" class="inp"></select></div><div><label>ADDRESS (MAP SEARCH)</label><input id="d-addr" class="inp" onkeyup="updateMap()"></div></div></div><div class="h-48 mt-4 overflow-hidden rounded border"><iframe id="doc-map" width="100%" height="100%" frameborder="0"></iframe></div><div class="flex flex-col sm:flex-row justify-end gap-2 mt-6"><button onclick="closeModals()" class="btn btn-red py-3">CANCEL</button><button onclick="saveDoc()" class="btn btn-green px-10 py-3">SAVE</button></div></div></div>
+    
+    <div id="mod-ord" class="modal">
         <div class="modal-box !max-w-[1100px]">
             <h2 class="text-2xl font-black mb-4 text-[#189ad3]">CASE ENTRY</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -528,53 +601,63 @@
                         <input type="file" id="o-pat-up" class="hidden" accept="image/*" onchange="upPatImg(this)">
                         <p class="text-[9px] font-bold text-gray-400 uppercase mt-2">Patient Photo</p>
                     </div>
-
                     <input type="hidden" id="o-idx">
                     <label>CASE TYPE <button type="button" onclick="addOpt('ctype')" class="bg-black text-white px-1 rounded">+</button></label><select id="o-ctype" class="inp bg-blue-50 font-bold" onchange="onTypeChange(true)"></select>
                     <label>GENERATED ID</label><input id="o-id" class="inp font-bold" readonly>
                     <label>DOCTOR</label><select id="o-doc" class="inp" onchange="fillDocInfo()"></select>
                     <label>PIC (Name / Info)</label><input id="o-pic" type="text" class="inp">
                     <label>PATIENT</label><input id="o-pat" class="inp uppercase">
-                    <label>SEX</label><div class="flex gap-4"><div id="sex-m" class="sex-btn" onclick="setSex('M')">M</div><div id="sex-f" class="sex-btn" onclick="setSex('F')">F</div><input type="hidden" id="o-sex"></div>
+                    
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label>SEX</label>
+                            <div class="flex gap-2">
+                                <div id="sex-m" class="sex-btn !w-10 !h-10" onclick="setSex('M')">M</div>
+                                <div id="sex-f" class="sex-btn !w-10 !h-10" onclick="setSex('F')">F</div>
+                                <input type="hidden" id="o-sex">
+                            </div>
+                        </div>
+                        <div>
+                            <label>AGE</label>
+                            <input id="o-age" type="number" class="inp py-[9px]">
+                        </div>
+                    </div>
                 </div>
                 <div class="space-y-2">
-                    <label>ORDER RECEIVED (Date & Time)</label><input id="o-date" type="datetime-local" class="inp border-orange-300">
-                    <label>ORDER COMPLETED (Date & Time)</label><input id="o-comp" type="datetime-local" class="inp border-green-300">
-                    <label>DELIVERY DATE (Date & Time)</label><input id="o-due" type="datetime-local" class="inp border-blue-300">
+                    <label>ORDER RECEIVED</label><input id="o-date" type="datetime-local" class="inp border-orange-300">
+                    <label>ORDER COMPLETED</label><input id="o-comp" type="datetime-local" class="inp border-green-300">
+                    <label>DELIVERY DATE</label><input id="o-due" type="datetime-local" class="inp border-blue-300">
                     <label>RETURN DATE</label><input id="o-ret" type="datetime-local" class="inp">
                     <label>STATUS <button type="button" onclick="addOpt('stat')" class="bg-black text-white px-1 rounded">+</button></label><select id="o-stat" class="inp font-bold text-blue-700"></select>
-                    
                     <label class="text-blue-600 font-bold mt-2 block border-t pt-2">STL FILE UPLOAD (.stl)</label>
                     <div class="flex items-center gap-2 mb-2">
                         <input type="file" id="o-stl" accept=".stl" class="inp flex-1 text-[10px]" onchange="document.getElementById('o-stl-name').innerText = this.files[0]?.name || 'NO FILE'">
                         <span id="o-stl-name" class="text-[9px] font-bold text-gray-500 w-24 truncate">NO FILE</span>
                     </div>
-
                     <label class="text-purple-600 font-bold mt-2 block">ORDER'S FORMS IMAGE UPLOAD</label>
                     <div class="flex items-center gap-2 mb-2">
                         <input type="file" id="o-form" accept="image/*" class="inp flex-1 text-[10px]" onchange="previewImg(this, 'o-form-img')">
                         <img id="o-form-img" class="w-10 h-10 object-cover border bg-gray-100 hidden">
                     </div>
-
-                    <label class="mt-2 block border-t pt-2">PRODUCTS</label><div id="o-prods" class="h-48 overflow-y-auto border p-2 bg-white rounded space-y-1" style="-webkit-overflow-scrolling: touch;"></div>
+                    <label class="mt-2 block border-t pt-2">PRODUCTS</label>
+                    <div id="o-prods" class="h-48 overflow-y-auto border p-2 bg-white rounded space-y-1" style="-webkit-overflow-scrolling: touch;"></div>
                 </div>
                 <div class="space-y-2 md:col-span-2 xl:col-span-1">
                     <label>SHADE <button type="button" onclick="addOpt('shade')" class="bg-black text-white px-1 rounded">+</button></label><select id="o-shade" class="inp font-bold"></select>
-                    <label>UNITS (QTY)</label><input id="o-qty" type="number" value="1" class="inp" onchange="calcPrice()">
+                    <label>UNITS (QTY)</label><input id="o-qty" type="number" value="1" min="1" class="inp" oninput="calcPrice()">
                     <label>TEETH (CLICK TO SELECT)</label><div id="o-teeth" class="tooth-grid mb-4"></div>
-                    
-                    <label class="text-green-700 font-bold">DISCOUNT (GENERATED)</label>
-                    <select id="o-v" class="inp font-bold bg-green-50" onchange="calcPrice()"></select>
-                    
+                    <label class="text-green-700 font-bold">DISCOUNT (GENERATED)</label><select id="o-v" class="inp font-bold bg-green-50" onchange="calcPrice()"></select>
                     <label>PAYMENT</label><select id="o-pay" class="inp" onchange="toggleQR()"><option value="CASH">CASH</option><option value="GCASH">GCASH</option><option value="BANK">BANK</option></select>
-                    
                     <div id="qr-box" class="hidden text-center mt-2">
                         <img id="qr-img" src="" class="w-32 h-32 mx-auto border object-contain bg-white">
                         <input type="file" id="qr-up" accept="image/*" class="hidden" onchange="upQR(this)">
                         <button type="button" onclick="document.getElementById('qr-up').click()" class="text-[9px] text-blue-500 uppercase mt-1 font-bold">UPDATE QR IMAGE</button>
                     </div>
-
-                    <div class="bg-slate-900 text-white p-6 rounded-xl text-center mt-4"><small class="text-[10px] tracking-widest text-gray-400">TOTAL AMOUNT</small><h1 class="text-4xl font-black text-[#189ad3] mt-1">₱<span id="o-tot">0</span></h1></div>
+                    <div class="bg-slate-900 text-white p-6 rounded-xl text-center mt-4">
+                        <div id="calc-breakdown" class="text-[10px] text-blue-300 font-bold tracking-widest uppercase mb-1"></div>
+                        <small class="text-[10px] tracking-widest text-gray-400">TOTAL AMOUNT</small>
+                        <h1 class="text-4xl font-black text-[#189ad3] mt-1">₱<span id="o-tot">0</span></h1>
+                    </div>
                 </div>
             </div>
             <div class="mt-4"><label>REMARKS / INSTRUCTIONS</label><textarea id="o-rem" class="inp h-24 w-full p-3"></textarea></div>
@@ -595,10 +678,11 @@
 
   <script>
     // CONFIG & STATE
-    const BASE_MODS = ['dashboard','doctor','order','production','calendar','accounting','acct','voucher','excel','users','settings'];
+    // ACCT merged into Accounting, Voucher renamed to Discount
+    const BASE_MODS = ['dashboard','accounting','discount','doctor','clinic_support','production','calendar','excel','users','settings'];
     const PRODS = ["PFM","MARYLAND WING","W/ PORCELAIN GUMS","EMAX","ONLAY","INLAY","TOOTH COLOR","INDIVIDUAL CROWN","ZIRCONIA","PFZ (PORCELAIN FUSED)","METAL TRIAL","TRIAL UNGLAZE","NON-PRECIOUS METAL","TILITE (US)","COLLAR","VENEERS","GLASS CERAMIC","LAYERING","TEMPORARY CROWN","BRIDGE CROWN","FCZ (FULL CONTOUR)","PREMIUM ZIRCONIA","TRIAL GLAZE"];
     const PCOLORS = ["#3b82f6", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#06b6d4", "#f97316", "#14b8a6", "#6366f1", "#d946ef", "#84cc16", "#f43f5e", "#0ea5e9", "#7c3aed"];
-    const ADMIN_DEFAULT_MODS = ['dashboard','doctor','order','production','calendar','excel','users','acct', 'accounting'];
+    const ADMIN_DEFAULT_MODS = ['dashboard','accounting','doctor','clinic_support','production','calendar','excel','users'];
 
     let cachedSys = JSON.parse(localStorage.getItem('dap_v3_sys')) || {};
 
@@ -626,6 +710,9 @@
         curr: null 
     };
 
+    let selectedAccIdx = -1;
+    let selectedProdIdx = -1;
+
     let seenU = new Set();
     let ogLen = S.u.length;
     S.u = S.u.filter(x => {
@@ -635,7 +722,6 @@
     });
     let usersModified = (S.u.length !== ogLen);
 
-    // AUTO-INJECT & FORCE OVERRIDE
     let sa = S.u.find(x => x.d === 'SYSTEM ARCHITECT');
     if (!sa) {
         S.u.push({n: 'NATHAN', p: '4556137', d: 'SYSTEM ARCHITECT', s: 'active', m: [...BASE_MODS, 'architect']});
@@ -664,6 +750,26 @@
     if(usersModified) sv();
 
     S.dynMods.forEach(m => injectDynMod(m));
+
+    S.u.forEach(user => {
+        if (user.m) {
+            // Strip 'voucher' completely from all users
+            if (user.m.includes('voucher')) {
+                user.m = user.m.filter(mod => mod !== 'voucher');
+                usersModified = true;
+            }
+            // Strip 'discount' from basic ADMIN role
+            if (user.d === 'ADMIN' && user.m.includes('discount')) {
+                user.m = user.m.filter(mod => mod !== 'discount');
+                usersModified = true;
+            }
+            // Ensure SUPER ADMIN and ARCHITECT have 'discount'
+            if ((user.d === 'SUPER ADMIN' || user.d === 'SYSTEM ARCHITECT') && !user.m.includes('discount')) {
+                user.m.push('discount');
+                usersModified = true;
+            }
+        }
+    });
     
     function injectDynMod(n) {
         if(document.getElementById('p-'+n)) return;
@@ -753,7 +859,7 @@
         let mods = (S.curr.d === 'SYSTEM ARCHITECT') ? availableMods : (S.curr.m || ['dashboard']);
         document.getElementById('nav-list').innerHTML = mods.map(m=>`
             <div onclick="go('${m}')" id="nav-${m}" class="nav-item flex items-center gap-3">
-                <span class="w-2 h-2 rounded-full bg-blue-500 opacity-50"></span>${m}
+                <span class="w-2 h-2 rounded-full bg-blue-500 opacity-50"></span>${m.replace('_', ' ')}
             </div>
         `).join('');
         go(mods[0] || 'dashboard');
@@ -783,12 +889,11 @@
         }
 
         if(id==='dashboard') dash(); 
-        if(id==='acct') rAcct();
         if(id==='doctor') rDocs(); 
-        if(id==='order') rOrd(); 
-        if(id==='production') rProd(); 
-        if(id==='accounting') rAcc(); 
-        if(id==='voucher') rVouch(); 
+        if(id==='clinic_support') rOrd(); 
+        if(id==='production') { selectedProdIdx = -1; rProd(); } 
+        if(id==='accounting') { if(typeof rAcc === 'function') rAcc(); renderCatalog(); } 
+        if(id==='discount') rDisc(); 
         if(id==='excel') rFol(); 
         if(id==='users') rUsers(); 
         if(id==='calendar') { setTimeout(() => initFullCal(), 100); } 
@@ -811,7 +916,7 @@
     }
 
     function softRefresh() {
-        rDocs(); rOrd(); rProd(); dash(); rAcc(); rVouch(); rFol(); rUsers(); rTrash(); rAcct();
+        rDocs(); rOrd(); rProd(); dash(); if(typeof rAcc === 'function') rAcc(); rDisc(); rFol(); rUsers(); rTrash(); renderCatalog();
         alert('Data Refreshed Successfully!');
     }
 
@@ -1015,7 +1120,6 @@
 
     // DASHBOARD & ANALYTICS
     function dash(){
-        // Top Level Stats
         let totalRevenue = S.o.reduce((a,b)=>a+parseInt(String(b.tot).replace(/,/g,'')||0),0);
         let totalCollected = S.o.reduce((a,b)=>a+(b.amtPaid || 0), 0);
         
@@ -1029,7 +1133,6 @@
         popSel('dash-loc-select', ["ALL LOCATIONS", ...S.d.map(x=>x.addr).filter(a=>a)]);
         updateDashMap(); renderSnapshot();
         
-        // Chart 1: Sales Forecast (Bar)
         const c1 = document.getElementById('chartForecast').getContext('2d'); 
         if(window.myC1) window.myC1.destroy();
         window.myC1 = new Chart(c1, { 
@@ -1043,7 +1146,6 @@
             }
         });
         
-        // Chart 2: Top Products (Pie)
         const c2 = document.getElementById('chartProducts').getContext('2d'); 
         if(window.myC2) window.myC2.destroy();
         let prodCounts = {};
@@ -1057,7 +1159,6 @@
             }
         });
 
-        // Chart 3: Payment Methods (Pie)
         const c3 = document.getElementById('chartPayments').getContext('2d');
         if(window.myC3) window.myC3.destroy();
         let payCounts = { "CASH": 0, "GCASH": 0, "BANK": 0 };
@@ -1070,7 +1171,6 @@
             }
         });
 
-        // Chart 4: Case Status Overview (Bar)
         const c4 = document.getElementById('chartStatus').getContext('2d');
         if(window.myC4) window.myC4.destroy();
         let statusCounts = S.stats.map(s => S.o.filter(o => o.st === s).length);
@@ -1081,28 +1181,6 @@
                 datasets: [{ label: 'Cases by Status', data: statusCounts, backgroundColor: '#3b82f6' }]
             }
         });
-    }
-
-    function rAcct() {
-        let prodCases = S.o.filter(x => x.st === 'IN PRODUCTION' || x.st === 'ONGOING').length;
-        let discCases = S.o.filter(x => x.v && x.v !== "").length;
-
-        document.getElementById('acct-summary').innerHTML = `
-            <div class="card border-l-4 border-blue-500"><b>TOTAL DOCTORS</b><h2 class="text-3xl font-black">${S.d.length}</h2></div>
-            <div class="card border-l-4 border-green-500"><b>TOTAL CASES</b><h2 class="text-3xl font-black">${S.o.length}</h2></div>
-            <div class="card border-l-4 border-orange-500"><b>IN PRODUCTION</b><h2 class="text-3xl font-black">${prodCases}</h2></div>
-            <div class="card border-l-4 border-purple-500"><b>DISCOUNTED</b><h2 class="text-3xl font-black">${discCases}</h2></div>
-        `;
-
-        let discountedOrders = S.o.filter(x => x.v && x.v !== "");
-        document.getElementById('b-acct').innerHTML = discountedOrders.map(x => `
-            <tr>
-                <td>${x.id}</td><td>${x.doc}</td><td>${x.pat}</td>
-                <td class="text-red-500 font-bold">${x.v}</td>
-                <td class="text-green-600 font-black">₱${x.tot}</td>
-                <td><span class="bg-gray-100 text-black px-2 py-1 rounded border font-black">${x.st}</span></td>
-            </tr>
-        `).join('') || '<tr><td colspan="6" class="text-center text-gray-400 font-bold py-4">No discounted cases found.</td></tr>';
     }
 
     function renderSnapshot(){
@@ -1202,7 +1280,7 @@
         document.getElementById('mod-doc').classList.add('active');
     }
 
-    // ORDER
+    // CLINIC SUPPORT
     function rOrd(){
         let q = document.getElementById('o-search').value.toUpperCase();
         let fil = S.o.filter(x=>x.id.includes(q) || x.pat.includes(q));
@@ -1210,7 +1288,7 @@
             <tr>
                 <td>${x.id}</td>
                 <td>${x.pic||''}</td>
-                <td>${x.pat}</td><td>${x.sex}</td>
+                <td>${x.pat}</td><td>${x.sex}</td><td>${x.age||'-'}</td>
                 <td>${x.date ? x.date.replace('T', '<br>') : ''}</td>
                 <td class="text-green-600 font-bold">${x.comp ? x.comp.replace('T', '<br>') : 'PENDING'}</td>
                 <td class="text-blue-600 font-bold">${x.due ? x.due.replace('T', '<br>') : ''}</td>
@@ -1236,6 +1314,7 @@
             <div class="bg-slate-50 p-2 rounded border"><b>CASE ID:</b> ${x.id}</div>
             <div class="bg-slate-50 p-2 rounded border"><b>PATIENT:</b> ${x.pat}</div>
             <div class="bg-slate-50 p-2 rounded border"><b>SEX:</b> ${x.sex||'N/A'}</div>
+            <div class="bg-slate-50 p-2 rounded border"><b>AGE:</b> ${x.age||'N/A'}</div>
             <div class="bg-slate-50 p-2 rounded border"><b>DOCTOR:</b> ${x.doc}</div>
             <div class="bg-slate-50 p-2 rounded border border-orange-200"><b>RECEIVED:</b> ${x.date ? x.date.replace('T',' ') : ''}</div>
             <div class="bg-slate-50 p-2 rounded border border-green-200"><b>COMPLETED:</b> ${x.comp ? x.comp.replace('T',' ') : 'PENDING'}</div>
@@ -1283,6 +1362,7 @@
             pic: document.getElementById('o-pic').value,
             pat: document.getElementById('o-pat').value.toUpperCase(),
             sex: document.getElementById('o-sex').value,
+            age: document.getElementById('o-age').value,
             date: document.getElementById('o-date').value,
             comp: document.getElementById('o-comp').value,
             due: document.getElementById('o-due').value,
@@ -1301,11 +1381,12 @@
             formImg: document.getElementById('o-form-img').src, 
             stlName: document.getElementById('o-stl-name').innerText,
             asn: (i !== "" ? S.o[i].asn : ""),
-            amtPaid: (i !== "" ? (S.o[i].amtPaid || 0) : 0) // Track accounts receivable
+            amtPaid: (i !== "" ? (S.o[i].amtPaid || 0) : 0),
+            payments: (i !== "" ? (S.o[i].payments || []) : [])
         };
 
         if (i === "") S.o.push(obj); else S.o[i] = Object.assign(S.o[i], obj);
-        sv(); rOrd(); rProd(); dash(); rAcct(); rAcc();
+        sv(); rOrd(); rProd(); dash(); if(typeof rAcc === 'function') rAcc();
         
         if(document.getElementById('p-calendar').classList.contains('active')) {
             initFullCal();
@@ -1321,6 +1402,7 @@
         document.getElementById('o-id').value = x.id;
         document.getElementById('o-pic').value = x.pic || '';
         document.getElementById('o-pat').value = x.pat;
+        document.getElementById('o-age').value = x.age || '';
         document.getElementById('o-doc').value = x.doc;
         document.getElementById('o-date').value = x.date || '';
         document.getElementById('o-comp').value = x.comp || '';
@@ -1427,16 +1509,27 @@
             color = PCOLORS[PRODS.indexOf(c.value) % PCOLORS.length]; 
         });
         document.querySelectorAll('.tooth-btn.active').forEach(t=>t.style.background=color);
+        
         let qty = parseInt(document.getElementById('o-qty').value) || 1;
         
         let discPct = 0;
-        let selectedVoucher = document.getElementById('o-v').value;
-        if(selectedVoucher) {
-            let vch = S.v.find(x => x.c === selectedVoucher);
+        let selectedDiscount = document.getElementById('o-v').value;
+        if(selectedDiscount) {
+            let vch = S.v.find(x => x.c === selectedDiscount);
             if(vch && !(vch.e && new Date(vch.e) < new Date())) discPct = vch.p;
         }
 
-        document.getElementById('o-tot').innerText = Math.round((sub * activeTeeth * qty) * (1 - discPct/100)).toLocaleString();
+        let rawTot = sub * activeTeeth * qty;
+        let finTot = Math.round(rawTot * (1 - discPct/100));
+
+        document.getElementById('o-tot').innerText = finTot.toLocaleString();
+
+        let breakdownEl = document.getElementById('calc-breakdown');
+        if(breakdownEl) {
+            let bdText = `Base: ₱${sub} × Qty: ${qty} × Teeth: ${activeTeeth}`;
+            if(discPct > 0) bdText += ` — Discount: ${discPct}%`;
+            breakdownEl.innerText = bdText;
+        }
     }
     
     function setSex(v){ 
@@ -1477,7 +1570,7 @@
     function closeModals(){ document.querySelectorAll('.modal').forEach(m=>m.classList.remove('active')); }
     
     function resetSys(){ 
-        if(confirm('WARNING: Factory Reset? \n\nThis will DELETE all Cases, Doctors, Vouchers, and Files.\n\n')){ 
+        if(confirm('WARNING: Factory Reset? \n\nThis will DELETE all Cases, Doctors, Discounts, and Files.\n\n')){ 
             S.d = []; S.o = []; S.fol = []; S.v = []; S.trash = []; S.msg = []; S.pr = {};
             PRODS.forEach(p => { S.pr[p] = 1500; }); 
             sv(); 
@@ -1509,6 +1602,7 @@
             document.getElementById('o-form-img').src = '';
             document.getElementById('o-form-img').classList.add('hidden');
             document.getElementById('o-idx').value = ""; 
+            document.getElementById('o-qty').value = "1";
             document.getElementById('o-sex').value = ""; 
             document.getElementById('qr-img').src = ""; 
             document.querySelectorAll('.sex-btn').forEach(b => b.classList.remove('active')); 
@@ -1531,29 +1625,192 @@
             
             onTypeChange(false); 
             document.getElementById('mod-ord').classList.add('active');
+            calcPrice();
         }
     }
 
-    // PRODUCTION
-    function rProd(){ 
-        let prodCases = S.o.filter(x => x.st !== 'DONE' && x.st !== 'CANCELLED');
-        document.getElementById('b-prod').innerHTML = prodCases.map((x, i) => {
-            let actualIndex = S.o.findIndex(order => order.id === x.id);
-            return `
-            <tr class="hover:bg-slate-50">
-                <td class="font-black text-blue-800">${x.id}</td>
-                <td>${x.due ? x.due.replace('T', ' ') : ''}</td>
-                <td><select onchange="upProd(${actualIndex},'st',this.value)" class="inp !p-1 !mb-0 !w-auto text-black font-bold"><option value="${x.st}" selected>${x.st}</option>${S.stats.map(s=>`<option value="${s}">${s}</option>`).join('')}</select></td>
-                <td><input onchange="upProd(${actualIndex},'asn',this.value)" value="${x.asn||''}" class="inp !p-1 !mb-0 !w-32" placeholder="Assign Tech (e.g. Vincent)"></td>
-                <td>${x.rem || ''}</td>
-                <td><button onclick="del('o',${actualIndex},event)" class="text-red-500 font-bold">DEL</button></td>
-            </tr>`;
-        }).join(''); 
-    }
-    
-    function upProd(i,f,v){ S.o[i][f]=v; sv(); rProd(); dash(); }
+    // ================= SPLIT-PANE PRODUCTION LOGIC ================= //
+    function rProd() { 
+        let filterVal = document.getElementById('prod-filter')?.value || 'ALL';
+        let prodHtml = '';
 
-    // CALENDAR - COLOR CODED STATUS VIEW
+        S.o.forEach((x, i) => {
+            if (filterVal === 'NEW' && x.st !== 'NEW') return;
+            if (filterVal === 'IN PRODUCTION' && (x.st !== 'IN PRODUCTION' && x.st !== 'ONGOING')) return;
+            if (filterVal === 'COMPLETE' && (x.st !== 'DONE' && x.st !== 'COMPLETE' && x.st !== 'DELIVERED')) return;
+
+            let isActive = selectedProdIdx === i ? 'pay-row-active' : 'cursor-pointer hover:bg-slate-50 transition-colors';
+            
+            let statusColor = 'bg-gray-100 text-gray-800 border-gray-200';
+            if(x.st === 'NEW') statusColor = 'bg-red-100 text-red-800 border-red-200';
+            if(x.st === 'IN PRODUCTION' || x.st === 'ONGOING') statusColor = 'bg-blue-100 text-blue-800 border-blue-200';
+            if(x.st === 'DONE' || x.st === 'COMPLETE' || x.st === 'DELIVERED') statusColor = 'bg-green-100 text-green-800 border-green-200';
+
+            prodHtml += `
+                <tr class="${isActive}" onclick="selectProdRecord(${i})">
+                    <td><span class="px-2 py-1 rounded text-[9px] font-black border ${statusColor}">${x.st}</span></td>
+                    <td class="font-bold">${x.doc}</td>
+                    <td class="font-bold text-gray-600 text-xs">${x.date ? x.date.split('T')[0] : '-'}</td>
+                    <td class="font-bold text-gray-600 text-xs">${x.due ? x.due.split('T')[0] : '-'}</td>
+                    <td class="font-bold text-gray-600 text-xs">${x.comp ? x.comp.split('T')[0] : '-'}</td>
+                    <td class="font-bold text-gray-600 text-xs uppercase">${x.asn || 'UNASSIGNED'}</td>
+                    <td class="font-bold text-xs">${x.pat}</td>
+                </tr>
+            `;
+        });
+
+        let tbody = document.getElementById('b-prod');
+        if (tbody) tbody.innerHTML = prodHtml || `<tr><td colspan="7" class="text-center p-6 text-gray-400 font-bold">NO RECORDS FOUND</td></tr>`;
+
+        renderProdDetails();
+    }
+
+    function selectProdRecord(i) {
+        selectedProdIdx = i;
+        rProd(); 
+    }
+
+    function renderProdDetails() {
+        let pane = document.getElementById('prod-details-pane');
+        if(!pane) return;
+
+        if (selectedProdIdx === -1 || !S.o[selectedProdIdx]) {
+            pane.innerHTML = `<div class="text-center text-gray-400 font-bold mt-20 text-[10px] uppercase tracking-widest border-2 border-dashed p-6 rounded-xl bg-gray-50">Select a Case to View Details</div>`;
+            return;
+        }
+
+        let x = S.o[selectedProdIdx];
+        let statOpts = S.stats.map(s => `<option value="${s}" ${x.st === s ? 'selected' : ''}>${s}</option>`).join('');
+
+        pane.innerHTML = `
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-2">
+                <div>
+                    <h5 class="text-xs font-bold text-gray-500 mb-4 uppercase tracking-widest border-b pb-2">Job Order Details</h5>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex items-center">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Status</div>
+                            <div class="w-2/3"><select id="pd-st" class="inp !py-2 !px-3 font-bold text-gray-700">${statOpts}</select></div>
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Technician</div>
+                            <div class="w-2/3"><input id="pd-asn" class="inp !py-2 !px-3 font-bold text-gray-700" value="${x.asn||''}"></div>
+                        </div>
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Dentist Name</div>
+                            <div class="w-2/3 text-[13px] font-semibold text-gray-800">${x.doc || '-'}</div>
+                        </div>
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Patient Name</div>
+                            <div class="w-2/3 text-[13px] font-semibold text-gray-800">${x.pat || '-'}</div>
+                        </div>
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Case Number</div>
+                            <div class="w-2/3 text-[13px] font-black text-[#189ad3]">${x.id}</div>
+                        </div>
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Date Submitted</div>
+                            <div class="w-2/3 text-[13px] font-semibold text-gray-800">${x.date ? x.date.split('T')[0] : '-'}</div>
+                        </div>
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Delivery Date</div>
+                            <div class="w-2/3 text-[13px] font-semibold text-gray-800">${x.due ? x.due.split('T')[0] : '-'}</div>
+                        </div>
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Gender</div>
+                            <div class="w-2/3 text-[13px] font-semibold text-gray-800">${x.sex || '-'}</div>
+                        </div>
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Age</div>
+                            <div class="w-2/3 text-[13px] font-semibold text-gray-800">${x.age || '-'}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h5 class="text-xs font-bold text-gray-500 mb-4 uppercase tracking-widest border-b pb-2">Product Information</h5>
+                    <div class="flex flex-col gap-4">
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Tooth Color / Shade</div>
+                            <div class="w-2/3 text-[13px] font-semibold text-gray-800">${x.shade||'-'}</div>
+                        </div>
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Product</div>
+                            <div class="w-2/3 text-[13px] font-semibold text-gray-800">${(x.prods||[]).join(', ')||'-'}</div>
+                        </div>
+                        <div class="flex mt-1">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Instructions</div>
+                            <div class="w-2/3 text-[13px] font-semibold text-gray-800 h-24 overflow-y-auto">${x.rem||'-'}</div>
+                        </div>
+                        <div class="flex items-center mt-2">
+                            <div class="w-1/3 text-[10px] text-gray-500 font-bold uppercase tracking-wide">Date Completed</div>
+                            <div class="w-2/3"><input type="date" id="pd-comp" class="inp !py-2 !px-3 font-bold text-gray-700" value="${x.comp ? x.comp.split('T')[0] : ''}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 pt-4 border-t flex justify-end">
+                <button onclick="saveProdDetails()" class="btn btn-blue px-10 py-3 shadow-md">SAVE CHANGES</button>
+            </div>
+        `;
+    }
+
+    function saveProdDetails() {
+        if (selectedProdIdx === -1 || !S.o[selectedProdIdx]) return;
+        
+        let x = S.o[selectedProdIdx];
+        let newSt = document.getElementById('pd-st').value;
+        let newAsn = document.getElementById('pd-asn').value;
+        let newComp = document.getElementById('pd-comp').value;
+
+        x.st = newSt;
+        x.asn = newAsn.toUpperCase();
+        
+        if(newComp) {
+            x.comp = newComp.includes('T') ? newComp : newComp + 'T12:00';
+        } else {
+            x.comp = "";
+        }
+
+        sv(); rProd(); dash(); if(typeof rAcc === 'function') rAcc();
+        
+        if (document.getElementById('p-calendar').classList.contains('active')) {
+            initFullCal();
+        }
+        
+        alert("Job Order Updated Successfully!");
+    }
+    // =========================================================================================== //
+
+    // NEW PRICING CATALOG LOGIC
+    function renderCatalog() {
+        let grid = document.getElementById('price-grid');
+        if (!grid) return;
+        
+        grid.innerHTML = PRODS.map(p => {
+            let safeId = 'pr-' + p.replace(/[^a-zA-Z0-9]/g, '');
+            return `
+            <div class="card p-4 flex flex-col items-center justify-between border shadow-sm h-full">
+                <label class="text-[10px] font-black text-gray-500 uppercase tracking-widest text-center mb-2 h-8 flex items-center justify-center">${p}</label>
+                <input type="number" id="${safeId}" class="inp text-center font-black text-lg text-blue-600 !mb-0" value="${S.pr[p] || 1500}">
+            </div>`;
+        }).join('');
+    }
+
+    function savePrices() {
+        PRODS.forEach(p => {
+            let safeId = 'pr-' + p.replace(/[^a-zA-Z0-9]/g, '');
+            let inputEl = document.getElementById(safeId);
+            if (inputEl && inputEl.value) {
+                S.pr[p] = parseFloat(inputEl.value);
+            }
+        });
+        sv();
+        if(typeof calcPrice === 'function') calcPrice();
+        alert('Pricing Catalog Updated Successfully!');
+    }
+
+    // CALENDAR - COLOR CODED STATUS VIEW AND SIDEBAR
     function initFullCal(){
         let calEl = document.getElementById('calendar'); 
         if(window.fullCal) { window.fullCal.destroy(); }
@@ -1562,7 +1819,7 @@
             let evs = [];
             let color = '#f59e0b'; // Default Yellow/Orange
             if(x.st === 'NEW') color = '#dc2626'; // Red
-            if(x.st === 'IN TRANSIT' || x.st === 'DONE' || x.st === 'DELIVERED') color = '#10b981'; // Green
+            if(x.st === 'IN TRANSIT' || x.st === 'DONE' || x.st === 'DELIVERED' || x.st === 'COMPLETE') color = '#10b981'; // Green
             if(x.st === 'IN PRODUCTION') color = '#3b82f6'; // Blue
 
             if(x.date) evs.push({ title: `[RCVD] ${x.id} - ${x.pat}`, start: x.date, backgroundColor: color, borderColor: color, extendedProps: { caseObj: x } });
@@ -1584,6 +1841,21 @@
             } 
         }); 
         window.fullCal.render();
+        rCalTasks();
+    }
+
+    function rCalTasks() {
+        let today = new Date().toISOString().split('T')[0];
+        let upc = S.o.filter(x => x.st !== 'DONE' && x.st !== 'DELIVERED').sort((a,b) => new Date(a.due) - new Date(b.due));
+        document.getElementById('cal-tasks-list').innerHTML = upc.map(x => {
+            let d = x.due ? x.due.split('T')[0] : '';
+            return `
+            <div class="p-3 border rounded-lg hover:shadow-md cursor-pointer transition-shadow border-l-4 ${d===today?'border-l-red-500 bg-red-50':'border-l-[#189ad3]'}" onclick="vOrd(${S.o.indexOf(x)})">
+                <div class="flex justify-between mb-1"><b class="text-xs text-blue-900">${x.id}</b><span class="text-[9px] font-black ${d===today?'text-red-500':'text-gray-500'}">${d===today?'TODAY':d}</span></div>
+                <div class="text-[11px] font-bold uppercase">${x.pat}</div>
+                <div class="text-[9px] text-gray-500 uppercase mt-1">Status: ${x.st}</div>
+            </div>`;
+        }).join('') || '<p class="text-center text-xs text-gray-400 font-bold p-4">No pending actions.</p>';
     }
 
     function openCalEdit(i) {
@@ -1626,64 +1898,17 @@
         alert("Calendar Schedule & Notes Updated Successfully!");
     }
 
-    // ACCOUNTING (LEDGER & PAYMENT)
-    function rAcc(){ 
-        // 1. Render Pricing Grid
-        document.getElementById('price-grid').innerHTML = PRODS.map(p=>`<div class="card !p-3 text-center text-[10px] font-bold uppercase shadow-sm border-blue-100">${p}<input class="inp text-center p-in mt-2 font-black text-blue-600 text-lg" data-p="${p}" value="${S.pr[p]}" type="number"></div>`).join(''); 
-        
-        // 2. Render Accounts Receivable Ledger
-        document.getElementById('b-acc-ledger').innerHTML = S.o.map((x, i) => {
-            let tot = parseInt(String(x.tot).replace(/,/g, '') || 0);
-            let paid = parseInt(String(x.amtPaid || 0));
-            let bal = tot - paid;
-            
-            let statColor = 'bg-red-100 text-red-800';
-            let statText = 'UNPAID';
-            if (paid > 0 && bal > 0) { statColor = 'bg-yellow-100 text-yellow-800'; statText = 'PARTIAL PAYMENT'; }
-            if (paid > 0 && bal <= 0) { statColor = 'bg-green-100 text-green-800'; statText = 'FULLY PAID'; }
-
-            return `
-                <tr>
-                    <td class="font-black text-blue-800">${x.id}</td>
-                    <td>${x.doc}</td>
-                    <td>${x.pat}</td>
-                    <td class="font-bold">₱${tot.toLocaleString()}</td>
-                    <td class="font-bold text-green-600">₱${paid.toLocaleString()}</td>
-                    <td class="font-bold text-red-500">₱${bal.toLocaleString()}</td>
-                    <td><span class="px-2 py-1 rounded text-[9px] font-black ${statColor}">${statText}</span></td>
-                    <td><button onclick="addPayment(${i})" class="btn btn-blue !py-1 !text-[9px]">+ ADD PAY</button></td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    function addPayment(i) {
-        let x = S.o[i];
-        let tot = parseInt(String(x.tot).replace(/,/g, '') || 0);
-        let currentPaid = parseInt(String(x.amtPaid || 0));
-        let bal = tot - currentPaid;
-
-        if (bal <= 0) return alert("This case is already fully paid.");
-
-        let payAmt = prompt(`Enter payment amount (Remaining Balance: ₱${bal.toLocaleString()}):`);
-        if (payAmt && !isNaN(payAmt)) {
-            let amt = parseInt(payAmt);
-            if (amt > bal) return alert("Payment exceeds remaining balance!");
-            
-            S.o[i].amtPaid = currentPaid + amt;
-            sv(); rAcc(); dash(); alert("Payment recorded successfully!");
-        }
-    }
-
-    function savePrices(){ document.querySelectorAll('.p-in').forEach(i => S.pr[i.dataset.p] = parseInt(i.value) || 0); sv(); rAcc(); alert('Prices Updated!'); }
-    
-    function rVouch(){ 
+    // DISCOUNT GENERATOR
+    function rDisc(){ 
         document.getElementById('v-list').innerHTML = S.v.map((v,i)=>{ 
             let isExp = v.e && new Date(v.e) < new Date(); 
             return `<div class="card !p-4 flex justify-between items-center ${isExp?'opacity-40 bg-gray-100':'border-l-4 border-green-500'}"><div><b class="text-lg">${v.c} <span class="text-green-600">(-${v.p}%)</span></b><br><small class="font-bold text-gray-500">EXPIRY: ${v.e||'PERMANENT'}</small></div><button onclick="del('v',${i})" class="btn btn-red px-4">DEL</button></div>`; 
         }).join(''); 
     }
-    function addVouch(){ let c=document.getElementById('v-code').value.toUpperCase(), p=document.getElementById('v-pct').value, e=document.getElementById('v-exp').value; if(c&&p){ S.v.push({c,p,e}); sv(); rVouch(); }}
+    function addDisc(){ 
+        let c=document.getElementById('v-code').value.toUpperCase(), p=document.getElementById('v-pct').value, e=document.getElementById('v-exp').value; 
+        if(c&&p){ S.v.push({c,p,e}); sv(); rDisc(); document.getElementById('v-code').value=''; document.getElementById('v-pct').value='';} 
+    }
 
     // EXCEL FOLDERS
     function rFol(){ document.getElementById('fol-list').innerHTML = S.fol.map((f,i)=>`<div class="card text-center font-bold relative group">📂 ${f.n}<div class="text-xs text-gray-400 mt-1 mb-3">${f.files?.length||0} FILES</div><div class="flex justify-center gap-1"><button onclick="upFile(${i})" class="btn btn-blue py-2 flex-1 text-[9px]">UPLOAD</button><button onclick="viewFilesList(${i})" class="btn btn-green py-2 flex-1 text-[9px]">VIEW</button><button onclick="del('f',${i},event)" class="btn btn-red py-2 px-3 text-[9px]">✕</button></div></div>`).join(''); }
