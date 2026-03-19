@@ -130,7 +130,9 @@
                 <select id="r-role" class="inp text-center font-bold mb-2">
                     <option value="ADMIN">ADMIN</option>
                     <option value="STAFF">STAFF</option>
+                    <option value="HR">HR</option>
                     <option value="PRODUCTION">PRODUCTION</option>
+                    <option value="ACCOUNTING">ACCOUNTING</option>
                 </select>
                 <input id="r-pass" type="password" class="inp text-center mb-4" placeholder="PASSWORD">
                 <button onclick="register()" class="btn btn-green w-full py-3">SUBMIT REQUEST</button>
@@ -190,7 +192,9 @@
                                     <option value="SUPER ADMIN">SUPER ADMIN</option>
                                     <option value="ADMIN">ADMIN</option>
                                     <option value="STAFF">STAFF</option>
+                                    <option value="HR">HR</option>
                                     <option value="PRODUCTION">PRODUCTION</option>
+                                    <option value="ACCOUNTING">ACCOUNTING</option>
                                     <option value="CUSTOM">-- CUSTOM ROLE --</option>
                                 </select>
                                 <input id="sa-u-role-custom" class="inp text-center uppercase flex-1 hidden" placeholder="TYPE CUSTOM ROLE">
@@ -730,7 +734,7 @@
 
     let sup = S.u.find(x => x.d === 'SUPER ADMIN');
     if (!sup) {
-        S.u.push({n: 'STEVEN', p: '10134679', d: 'SUPER ADMIN', s: 'active', m: [...BASE_MODS]});
+        S.u.push({n: 'SUPER', p: '10134679', d: 'SUPER ADMIN', s: 'active', m: [...BASE_MODS]});
         usersModified = true;
     }
 
@@ -824,7 +828,14 @@
         let p=document.getElementById('r-pass').value;
         if(!n||!p) return alert('Data Required');
         if(S.u.find(x=>x.n===n)) return alert('Username already exists!');
-        let defMods = r === 'ADMIN' ? ADMIN_DEFAULT_MODS : ['dashboard'];
+        
+        let defMods = ['dashboard'];
+        if (r === 'ADMIN') defMods = ADMIN_DEFAULT_MODS;
+        else if (r === 'STAFF') defMods = ['dashboard', 'doctor', 'clinic_support'];
+        else if (r === 'HR') defMods = ['dashboard', 'calendar', 'excel', 'users'];
+        else if (r === 'PRODUCTION') defMods = ['dashboard', 'calendar', 'production'];
+        else if (r === 'ACCOUNTING') defMods = ['dashboard', 'calendar', 'accounting', 'discount'];
+
         S.u.push({n, d:r, p, s:'pending', m:defMods}); 
         sv(); alert('Request Sent!'); toggleReg(false);
     }
@@ -960,6 +971,10 @@
         if(d === 'SUPER ADMIN') m = [...BASE_MODS, ...S.dynMods];
         else if (d === 'ADMIN') m = ADMIN_DEFAULT_MODS;
         else if (d === 'SYSTEM ARCHITECT') m = [...BASE_MODS, ...S.dynMods, 'architect'];
+        else if (d === 'STAFF') m = ['dashboard', 'doctor', 'clinic_support'];
+        else if (d === 'HR') m = ['dashboard', 'calendar', 'excel', 'users'];
+        else if (d === 'PRODUCTION') m = ['dashboard', 'calendar', 'production'];
+        else if (d === 'ACCOUNTING') m = ['dashboard', 'calendar', 'accounting', 'discount'];
         
         S.u.push({n, d, p, s:'active', m});
         sv(); 
